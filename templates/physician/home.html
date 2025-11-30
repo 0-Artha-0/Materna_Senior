@@ -1,0 +1,91 @@
+{% extends "layouts/home_layout.html" %}
+
+{% block styles %}
+
+{{ super() }}
+
+<style>
+    .upcoming-appointments {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .appointment-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .appointment-item:last-child {
+        border-bottom: none;
+    }
+
+    .appointment-patient {
+        font-weight: bold;
+    }
+
+    .appointment-info {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+    }
+
+    .appointment-time {
+        color: var(--dark-blue);
+        font-weight: 500;
+    }
+
+    .button-primary {
+        background-color: var(--coral);
+    }
+
+    .button-secondary {
+        background-color: var(--dark-blue);
+    }
+</style>
+{% endblock %}
+
+{% block home_button_href %}schedule.html{% endblock %}
+{% block button %}View Schedule{% endblock %}
+
+
+<!-- Quick Actions Buttons -->
+{% block quickActions %}
+<button class="action-card" id='patients'>
+    <div class="icon">🔍</div>
+    <h3>Search Patients</h3>
+    <p>Find patient records</p>
+</button>
+<button class="action-card" id='patients'>
+    <div class="icon">👤</div>
+    <h3>Patient Assessment</h3>
+    <p>Create new PCB assessment</p>
+</button>
+<button class="action-card" id='schedule'>
+    <div class="icon">📊</div>
+    <h3>Check my schedule</h3>
+    <p>View upcoming appointments</p>
+</button>
+{% endblock %}
+
+{% block notifications %}
+<div class="upcoming-appointments">
+    <div class="section-title">Today's Appointments</div>
+
+    {% for notif in data.notifications.summary %}
+    <div class="appointment-item">
+        <div>
+            <div class="appointment-patient">{{ notif.patient_name }}</div>
+            <div class="appointment-info">{{ notif.info }}</div>
+        </div>
+        <div class="appointment-time">{{ notif.time }}</div>
+    </div>
+    {% endfor %}
+    <div style="text-align: center; margin-top: 15px;">
+        <button class="button-secondary" onclick="window.location.href='/schedule.html'">View Full Schedule</button>
+    </div>
+</div>
+{% endblock %}

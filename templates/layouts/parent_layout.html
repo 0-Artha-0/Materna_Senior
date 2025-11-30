@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Materna: {% block title %}{% endblock %}
+    </title>
+    <link rel="icon" href="{{ url_for('static', path='logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', path='styles/background.css') }}">
+
+    <!-- Dialog Box Style -->
+    <style>
+        .app-dialog-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.25);
+            /* lighter overlay for light theme */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        .app-dialog-backdrop.hidden {
+            display: none;
+        }
+
+        .app-dialog {
+            background: #ffffff;
+            /* white card */
+            color: #1f2933;
+            /* dark gray text */
+            min-width: 320px;
+            max-width: 480px;
+            padding: 20px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(15, 23, 42, 0.18);
+            /* soft shadow */
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            border-top: 4px solid #f97316;
+            /* orange accent (match your login button) */
+        }
+
+        .app-dialog-title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .app-dialog-message {
+            font-size: 0.95rem;
+            margin-bottom: 16px;
+        }
+
+        .app-dialog-btn {
+            border: none;
+            padding: 8px 18px;
+            border-radius: 6px;
+            background: #f97316;
+            /* same orange accent */
+            color: #ffffff;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .app-dialog-btn:hover {
+            background: #ea580c;
+            /* slightly darker on hover */
+        }
+    </style>
+
+    {% block styles %}
+    <!-- Additional Styles Block -->
+    {% endblock %}
+    <script>
+        function showAppDialog(message) {
+            const backdrop = document.getElementById("app-dialog-backdrop");
+            const msgEl = document.getElementById("app-dialog-message");
+            msgEl.textContent = message;
+            backdrop.classList.remove("hidden");
+        }
+
+        function hideAppDialog() {
+            document.getElementById("app-dialog-backdrop").classList.add("hidden");
+        }
+    </script>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="{{ url_for('static', path='logo.png') }}" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            {% block user %}
+            <!-- User Info Card Should be displayed here -->
+            {% endblock %}
+        </header>
+        <nav class="nav-links">
+            {% block nav %}
+            <!-- Navigtaion List Should be added Dynamically here -->
+            {% endblock %}
+        </nav>
+    </div>
+
+    <!-- Global dialog -->
+    <div id="app-dialog-backdrop" class="app-dialog-backdrop hidden">
+        <div class="app-dialog">
+            <div id="app-dialog-title" class="app-dialog-title">Message</div>
+            <div id="app-dialog-message" class="app-dialog-message"></div>
+            <button type="button" class="app-dialog-btn" onclick="hideAppDialog()">OK</button>
+        </div>
+    </div>
+
+    <div class="content">
+        {% block content %}
+        <!-- Content here -->
+        {% endblock %}
+    </div>
+
+    <footer class="footer">
+        {% block footer %}
+        <!-- Footer -->
+        {% endblock %}
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+    </footer>
+
+
+    {% block scripts %}
+    <!-- Additional Scripts here -->
+    {% endblock %}
+</body>
+
+</html>

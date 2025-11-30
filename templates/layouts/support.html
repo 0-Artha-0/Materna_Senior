@@ -1,0 +1,182 @@
+{% extends "layouts/main_layout.html" %}
+
+<!-- Page title -->
+{% block title %}
+Support
+{% endblock %}
+
+
+{% block user %}
+{% if data %}
+{{ super() }}
+{% endif %}
+<!-- If user not logged in -->
+{% endblock %}
+
+
+{% block nav %}
+{% if data %}
+{{ super() }}
+
+{% else %}
+<!-- If user not logged in -->
+<a href="/" class="active">Login</a>
+
+{% endif %}
+{% endblock %}
+
+
+{% block footer %}
+{% if data %}
+{{ super() }}
+
+{% else %}
+<!-- If user not logged in -->
+Administration portal for Fetal PCB Prediction Tool.
+{% endif %}
+{% endblock %}
+
+
+<!-- Additional Styles -->
+{% block styles %}
+<style>
+    .content {
+        flex: 1;
+        display: flex;
+    }
+
+    .login-container {
+        padding: 30px;
+        margin: 20px 0px;
+        width: 100%;
+        max-width: 400px;
+        min-height: 300px;
+        align-items: center;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+        border-top: 4px solid var(--light-blue);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--dark-blue);
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: var(--navy);
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--light-blue);
+    }
+
+    .login-button {
+        background-color: var(--coral);
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .login-button:hover {
+        background-color: #d95a43;
+    }
+
+    .support-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .support-link a {
+        color: var(--dark-blue);
+        text-decoration: none;
+    }
+
+    .support-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+
+
+<!-- Main Content -->
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h2>Support Request & Feedback</h2>
+        <p>Please state your issue</p>
+    </div>
+    <form action="/support" method="post" class="login-form" id="login-form"> <!-- CHANGE ID AND CLASS -->
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" required>
+        </div>
+
+        <div class="form-group">
+            <label for="type">Type</label>
+            <select id="type" name="type" required>
+                <option value="" disabled selected>Select type…</option>
+                <option value="Technical Issue">Technical Issue</option>
+                <option value="Support Request">Support Request</option>
+                <option value="Feature Request">Feature Request</option>
+                <option value="User Feedback">User Feedback</option>
+            </select>
+        </div>
+
+
+        <div class="form-group">
+            <label for="priority">Priority</label>
+            <select id="priority" name="priority" required>
+                <option value="" disabled selected>Select priority...</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea rows="5" cols="50" id="description" name="description" required></textarea>
+        </div>
+
+        <!-- hidden defaults -->
+        <input type="hidden" name="status" value="open">
+
+        <button type="submit" class="login-button">Send</button>
+    </form>
+</div>
+
+{% endblock %}

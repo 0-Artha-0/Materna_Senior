@@ -1,0 +1,251 @@
+{% extends "physician/patient_profile.html" %}
+
+{% block title %}Patient Assessment{% endblock %}
+
+{% block styles %}
+{{ super() }}
+
+<style>
+    .assessment-form {
+        background-color: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: bold;
+        color: var(--dark-blue);
+        margin-bottom: 8px;
+    }
+
+    .form-control {
+        width: 97%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+
+    .prediction-result {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border-top: 3px solid var(--dark-blue);
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .prediction-value {
+        font-size: 36px;
+        font-weight: bold;
+        color: var(--dark-blue);
+        margin: 20px 0;
+    }
+
+    .prediction-details {
+        font-size: 16px;
+        margin-bottom: 15px;
+    }
+
+    .actions-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        margin: 30px 0;
+    }
+
+    .save-container {
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="Controls">
+    <div>
+        <div class="patient-name">{{ data.patient_name }}</div>
+        <div class="patient-id">Patient ID: {{ data.patient_id }}</div>
+    </div>
+    <div>
+        <button class="button-secondary" onclick="location.href='{{ request.url.path.rsplit('/', 1)[0] }}';">Back to
+            Patient</button>
+    </div>
+</div>
+
+<div class="section-title">Patient Information</div>
+<div class="info-grid">
+    {% for info in data.personal_info %}
+    <div class="info-card">
+        <div class="card-title">{{ info.label }}</div>
+        <div class="card-value">{{ info.value }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="section-title">Feature Inputs</div>
+
+<div class="assessment-form">
+    <div class="form-group">
+        <div class="info-grid">
+            {% for feature in data.features %}
+            <div class="info-card">
+                <div class="card-title">{{ feature.label }}</div>
+                <div class="card-value">{{ feature.value }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="form-label">Select Fetus Gender</label>
+        <select class="form-control" name="gender" required>
+            <option value="" disabled selected>-- Select Gender --</option>
+            <option value="1">Male</option>
+            <option value="2">Female</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label class="form-label">Select PCB Type</label>
+        <select class="form-control" id="pcb_type" name="pcb_type" required>
+            <option value="" disabled selected>-- Select PCB Type --</option>
+            <option value="74">PCB74</option>
+            <option value="99">PCB99</option>
+            <option value="118">PCB118</option>
+            <option value="138">PCB138</option>
+            <option value="153">PCB153</option>
+            <option value="156">PCB156</option>
+            <option value="170">PCB170</option>
+            <option value="180">PCB180</option>
+            <option value="183">PCB183</option>
+            <option value="187">PCB187</option>
+
+        </select>
+    </div>
+
+    <input type="hidden" id="patient_id" name="patient_id" value="{{ data.id }}">
+
+    <div class="form-group" style="margin-top: 30px; text-align: center;">
+        <button type="button" class="button-primary" style="padding: 12px 24px; 
+                    font-size: 16px;" onclick="predict();">Estimate Fetal PCB Exposure</button>
+    </div>
+</div>
+
+<div id="prediction-block" class="prediction-conatiner" style="display:none;">
+    <div class="section-title">Prediction Results</div>
+    <div class="prediction-result">
+        <div class="prediction-details">Fetal PCB-<span id="pcb_type_label"></span> Prediction</div>
+        <div class="prediction-value"><span id="pred_value"></span> ng/g_lipid</div>
+        <div class="prediction-details">
+            <span class="risk-badge risk-high">High Risk</span>
+        </div>
+        <div class="prediction-details" style="color: #777; margin-top: 15px;">
+            Prediction generated on <span id="pred_date"></span>
+        </div>
+    </div>
+
+    <div class="section-title">Available Actions</div>
+    <div class="actions-container">
+        <button class="button button-secondary">Schedule Follow-up</button>
+
+        <!-- Implement it later -->
+        <!-- <button class="button button-secondary">Explain Prediction Results</button> -->
+
+        <button class="button button-secondary">Flag Patient Case</button>
+    </div>
+
+    <!-- <div class="section-title">Assessment Notes</div>
+    <div class="info-card">
+        <div class="form-group">
+            <label class="form-label">Additional Observations</label>
+            <textarea class="form-control" rows="4" cols="30"
+                placeholder="Enter any additional notes or observations..."></textarea>
+        </div>
+
+        <div style="text-align: right; margin-top: 15px;">
+            <button class="button button-secondary">Save Notes</button>
+        </div>
+    </div> -->
+
+    <div class="save-container">
+        <button class="button button-primary" style="padding: 12px 30px; font-size: 16px; width:70%;">Save
+            Results</button>
+    </div>
+</div>
+
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script>
+    // Function to request child pcb prediction
+    async function predict() {
+        pcb_type = document.getElementById('pcb_type').value;
+        gender = document.querySelector('select[name="gender"]').value;
+        patient_id = document.querySelector('input[name="patient_id"]').value;
+
+        if (!pcb_type || !gender || !patient_id) return showAppDialog('Missing inputs');
+
+        // Send data to backend for prediction
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        const body = JSON.stringify({ patient_id, gender, pcb_type });
+
+        try {
+            const res = await fetch(`http://127.0.0.1:8000/predict_cPCB`, {
+                method: "POST",
+                headers: headers,
+                body: body
+            });
+
+            if (!res.ok) {
+                const txt = await res.text().catch(() => res.statusText);
+                console.error(`${txt} - ${res.status}`);
+                showAppDialog(`Prediction failed ${res.statusText}`);
+            }
+
+            const data = await res.json();
+            const pred = data.prediction.value;
+            const pred_date = data.prediction.date;
+
+            if (pred === null || pred === undefined) throw new Error('No prediction returned');
+
+            // update prediction value and make block visible
+            const predEl = document.getElementById('pred_value');
+            predEl.textContent = Number(pred).toFixed(2);
+
+            // update heading to reflect chosen PCB type (if present)
+            const heading = document.getElementById('pcb_type_label');
+            heading.textContent = pcb_type;
+
+            const date = document.getElementById('pred_date');
+            date.textContent = pred_date;
+
+            const block = document.getElementById('prediction-block');
+            block.style.display = 'block';
+
+            showAppDialog("Prediction Successful");
+
+        }
+        catch (err) {
+            console.error(err);
+            showAppDialog('Prediction failed: ' + (err.message || err));
+        }
+    }
+</script>
+{% endblock %}

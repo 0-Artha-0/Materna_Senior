@@ -1,0 +1,84 @@
+{% extends "layouts/home_layout.html" %}
+
+{% block styles %}
+
+{{ super() }}
+
+<style>
+    .alert {
+        color: var(--coral);
+    }
+
+    .system-metrics {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .metric-card {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        border-top: 3px solid var(--light-blue);
+    }
+
+    .metric-value {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--dark-blue);
+    }
+
+    .metric-label {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        margin-top: 5px;
+    }
+</style>
+{% endblock %}
+
+
+{% block button %}Check System Health{% endblock %}
+
+<!-- Unique: System metrics block in admin home page -->
+{% block system_metrics %}
+<div class="system-metrics">
+    <div class="metric-card">
+        <div class="metric-value">99.92%</div>
+        <div class="metric-label">System Uptime</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value">78.6%</div>
+        <div class="metric-label">CPU Usage</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value">65.4%</div>
+        <div class="metric-label">Memory Usage</div>
+    </div>
+    <div class="metric-card">
+        <div class="metric-value">2.34%</div>
+        <div class="metric-label">Error Rate</div>
+    </div>
+</div>
+{% endblock %}
+
+<!-- Quick Actions Buttons -->
+{% block quickActions %}
+<button class="action-card" id="dashboard">
+    <div class="icon">📊</div>
+    <h3>System Dashboard</h3>
+    <p>View detailed analytics</p>
+</button>
+<button class="action-card" id="accounts">
+    <div class="icon">👥</div>
+    <h3>User Accounts</h3>
+    <p>Manage system users</p>
+</button>
+<button class="action-card" id="reports">
+    <div class="icon">🔔</div>
+    <h3>Review Reports</h3>
+    <p>Check new issue reports</p>
+</button>
+{% endblock %}

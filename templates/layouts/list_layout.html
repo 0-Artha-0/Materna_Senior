@@ -1,0 +1,244 @@
+{% extends "layouts/main_layout.html" %}
+
+<!-- DON'T FORGET PAGE TITLE + ICON -->
+
+{% block styles %}
+<style>
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        padding: 20px;
+        background-color: var(--light-blue);
+        color: var(--navy);
+        border-radius: 10px;
+        border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+    }
+
+    .controls-title {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .controls-subtitle {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .button-primary {
+        background-color: var(--coral);
+    }
+
+    .button-secondary {
+        background-color: var(--dark-blue);
+    }
+
+    .summary-banner {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .summary-item {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        border-top: 3px solid var(--light-blue);
+    }
+
+    .summary-number {
+        font-size: 28px;
+        font-weight: bold;
+        color: var(--dark-blue);
+    }
+
+    .summary-label {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .search-filter-container {
+        background-color: white;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .search-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .search-input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+
+    .filter-section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        align-items: center;
+    }
+
+    .filter-label {
+        color: var(--navy);
+        font-weight: 500;
+    }
+
+    .filter-dropdown,
+    .date-start,
+    .date-end {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+    }
+
+    .data-table thead {
+        background-color: var(--light-blue);
+        color: var(--navy);
+    }
+
+    .data-table th,
+    .data-table td {
+        padding: 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .data-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .data-table tr:nth-child(even) {
+        background-color: rgba(230, 249, 248, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Content here -->
+
+<div class="controls">
+    <div>
+        <div class="controls-title">{{ data.title }}</div>
+        <div class="controls-subtitle">{{ data.subtitle }}</div>
+    </div>
+    {% if data.primary_button %}
+    <div class="action-buttons">
+        <button class="button-primary" onclick="location.href='{{ data.primary_href }}'">{{ data.primary_button
+            }}</button>
+    </div>
+    {% endif %}
+</div>
+
+<div class="summary-banner">
+
+    {% for item in data.summary %}
+    <div class="summary-item">
+        <div class="summary-number">{{ item.number }}</div>
+        <div class="summary-label">{{ item.label }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="search-filter-container">
+    <div class="search-bar">
+        <input type="text" class="search-input" placeholder="{{ data.search_placeholder }}">
+        <button class="button-primary">Search</button>
+    </div>
+
+    <div class="filter-section">
+        <span class="filter-label">Filter by:</span>
+
+        {% for filter in data.filters %}
+        <select class="filter-dropdown">
+            {% for option in filter.options %}
+            <option>{{ option }}</option>
+            {% endfor %}
+        </select>
+        {% endfor %}
+
+        {% block additional_filters %}
+        {% endblock %}
+    </div>
+</div>
+
+<table class="data-table">
+    <thead>
+        <tr>
+            {% for attribute in data.attributes %}
+            <th>{{ attribute }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for record in data.records %}
+        <tr>
+            {% for field in record.fields %}
+            <td>{{ field }}</td>
+            {% endfor %}
+            <td><span class="status-badge {{ record.status_class }}">{{ record.status }}</span></td>
+            <td><button value="{{ record.id }}" class="button-secondary action-btn">{{ record.action }}</button></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    function attachUniversalSearch() {
+        const input = document.querySelector(".search-input");
+        const btn = document.querySelector(".search-bar button");
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!input || !btn || !rows.length) return;
+
+        function applySearch() {
+            const q = (input.value || "").trim().toLowerCase();
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const id = (tds[0]?.textContent || "").toLowerCase();
+                const name = (tds[1]?.textContent || "").toLowerCase();
+                row.style.display = (!q || id.includes(q) || name.includes(q)) ? "" : "none";
+            });
+        }
+
+        btn.type = "button";
+        btn.addEventListener("click", applySearch);
+        input.addEventListener("keydown", e => { if (e.key === "Enter") applySearch(); });
+    }
+    document.addEventListener("DOMContentLoaded", attachUniversalSearch);
+</script>
+
+
+
+{% endblock %}

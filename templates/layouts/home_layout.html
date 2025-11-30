@@ -1,0 +1,102 @@
+{% extends "layouts/main_layout.html" %}
+
+{% block title %} Home {% endblock %}
+
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', path='styles/homepages.css') }}">
+
+<style>
+    button {
+        padding: 10px 15px;
+        color: white;
+        font-size: medium;
+        font-weight: 550;
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+        cursor: pointer;
+    }
+
+    .button-primary {
+        background-color: var(--coral);
+    }
+
+    .button-secondary {
+        background-color: var(--dark-blue);
+    }
+</style>
+
+<!-- ADDITONAL STYLE BLOCK COULD BE ADDED -->
+{% endblock %}
+
+{% block content %}
+
+<div class="welcome-banner">
+    <div class="welcome-text">
+        <h1>Welcome,
+            {% if data.role == 'physician' %} Dr. {% endif %}
+            {{data.first_name}}</h1>
+        <p>Today is {{data.current_time}}</p>
+    </div>
+    <!-- WELCOME BUTTON MUST REDIRECT USERS TO THEIR RESPECTIVE PAGES -->
+    <button id="welcomeBtn" class="button-primary"
+        onclick="window.location.href='{% block home_button_href %}{% endblock %}'">{% block
+        button %}{% endblock
+        %}</button>
+</div>
+
+<!-- COULD BE REMOVED -->
+{% block system_metrics %}
+<!-- Unique: System metrics block in admin home page -->
+{% endblock %}
+
+<div class="quick-actions">
+    <div class="section-title">Quick Actions</div>
+    <div class="action-grid">
+
+        {% block quickActions %}
+        <!-- Different quick actions buttons for each user -->
+        {% endblock %}
+
+    </div>
+</div>
+
+<div class="dashboard-container">
+    <div class="recent-activities">
+        <div class="section-title">Recent Activities</div>
+
+        <!-- NEEDS DATABASE OR TEMPORARY MEMORY FOR RECENT ACTIVITIES -->
+        {% for activity in data.activities %}
+        <div class="activity-item">
+            <div class="activity-time">{{activity.time}}</div>
+            <div class="activity-desc">
+                <p>{{activity.message}}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% block notifications %}
+    <!-- FOR NOW WE'LL HARDCODE THEM FOR EACH USER -->
+    {% endblock %}
+</div>
+
+{% endblock %}
+
+
+<!-- Additional Scripts -->
+{% block scripts %}
+
+{{ super() }}
+
+<script>
+    // Set event listener for each quick actions card
+    document.querySelectorAll(".action-card").forEach(card => {
+        card.addEventListener("click", () => {
+            const page = card.id;
+            window.location.href = `/${page}.html`;
+        }, false);
+    });
+</script>
+
+{% endblock %}

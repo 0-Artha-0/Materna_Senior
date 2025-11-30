@@ -1,0 +1,63 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Patients Appointments {% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selects = document.querySelectorAll(".filter-dropdown");
+        if (selects.length < 3) return;
+
+        const statusSel = selects[0]; // All Status | Scheduled | Completed | Cancelled
+        const dateSel = selects[1]; // All Dates | Today | Next 7 Days | Next 30 Days | Past Dates
+        const docSel = selects[2]; // All Physicians | Dr. ...
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!rows.length) return;
+
+        function parseDateTime(txt) {
+            const s = (txt || "").trim();
+            const d = new Date(s);
+            return isNaN(d) ? null : d;
+        }
+
+        function inDateRange(d, choice) {
+            if (!choice || choice.startsWith("All")) return true;
+            if (!d) return false;
+            const now = new Date();
+            const inNext = days => (d >= now && d <= new Date(now.getTime() + days * 86400000));
+            if (choice === "Today") return d.toDateString() === now.toDateString();
+            if (choice === "Next 7 Days") return inNext(7);
+            if (choice === "Next 30 Days") return inNext(30);
+            if (choice === "Past Dates") return d < now;
+            return true;
+        }
+
+        function applyFilters() {
+            const sChoice = statusSel.value;
+            const dChoice = dateSel.value;
+            const docChoice = docSel.value;
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const dtText = tds[3]?.textContent || "";
+                const docText = (tds[4]?.textContent || "").trim();
+                const badgeTd = tds[tds.length - 2];
+                const statusText = (badgeTd?.textContent || "").trim(); // Scheduled/Completed/Cancelled
+
+                const okStatus = sChoice.startsWith("All") || statusText === sChoice;
+                const okDate = inDateRange(parseDateTime(dtText), dChoice);
+                const okDoc = docChoice.startsWith("All") || docText === docChoice;
+
+                row.style.display = (okStatus && okDate && okDoc) ? "" : "none";
+            });
+        }
+
+        statusSel.addEventListener("change", applyFilters);
+        dateSel.addEventListener("change", applyFilters);
+        docSel.addEventListener("change", applyFilters);
+    });
+</script>
+
+{% endblock %}

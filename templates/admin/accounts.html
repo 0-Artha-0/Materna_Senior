@@ -1,0 +1,47 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selects = document.querySelectorAll(".filter-dropdown");
+        if (selects.length < 3) return;
+
+        const roleSel = selects[0];     // All Roles | …
+        const statusSel = selects[1];   // All Status | Active | Inactive
+        const deptSel = selects[2];     // All Departments | …
+
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!rows.length) return;
+
+        function applyFilters() {
+            const rChoice = roleSel.value;
+            const sChoice = statusSel.value;
+            const dChoice = deptSel.value;
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const roleText = (tds[3]?.textContent || "").trim();
+                const deptText = (tds[4]?.textContent || "").trim();
+                const badgeTd = tds[tds.length - 2];
+                const activeText = (badgeTd?.textContent || "").trim(); // "Active" / "Inactive"
+
+                const okRole = rChoice.startsWith("All") || roleText === rChoice;
+                const okStatus = sChoice.startsWith("All") || activeText === sChoice;
+                const okDept = dChoice.startsWith("All") || deptText === dChoice;
+
+                row.style.display = (okRole && okStatus && okDept) ? "" : "none";
+            });
+        }
+
+        roleSel.addEventListener("change", applyFilters);
+        statusSel.addEventListener("change", applyFilters);
+        deptSel.addEventListener("change", applyFilters);
+    });
+</script>
+
+
+{% endblock %}

@@ -1,0 +1,415 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Patients Records{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selects = document.querySelectorAll(".filter-dropdown");
+        const riskSel = selects[0];   // "All Risk Levels" | "High Risk" | "Medium Risk" | "Low Risk"
+        const gaSel = selects[1];   // "All Gestational Ages" | "First..." | "Second..." | "Third..."
+        const assessSel = selects[2];   // "All Assessment Status" | "Assessed" | "Pending" (may not exist)
+
+        const searchInput = document.querySelector(".search-input");
+        const searchBtn = document.querySelector(".search-bar button");
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+
+        // delegate actions from the table body so every row button works
+        const tableBody = document.querySelector(".data-table tbody");
+        function weeksFrom(text) {
+            const m = (text || "").match(/\d+/);
+            return m ? parseInt(m[0], 10) : null;
+        }
+
+        function matchesRisk(riskText, sel) {
+            if (!sel || sel.startsWith("All")) return true;
+            // sel: "High Risk" → "high"
+            const want = sel.replace(" Risk", "").toLowerCase();
+            return (riskText || "-").trim().toLowerCase() === want;
+        }
+
+        function matchesGA(weeks, sel) {
+            if (!sel || sel.startsWith("All")) return true;
+            if (weeks == null) return false;
+            if (sel.startsWith("First")) return weeks < 13;
+            if (sel.startsWith("Second")) return weeks >= 13 && weeks <= 26;
+            if (sel.startsWith("Third")) return weeks > 26;
+            return true;
+        }
+
+        function matchesAssess(lastAssessText, sel) {
+            if (!assessSel || !sel || sel.startsWith("All")) return true;
+            const assessed = (lastAssessText || "").trim() !== "-";
+            return (sel === "Assessed") ? assessed : (sel === "Pending" ? !assessed : true);
+        }
+
+        function matchesSearch(idText, nameText, q) {
+            if (!q) return true;
+            q = q.toLowerCase();
+            return idText.toLowerCase().includes(q) || nameText.toLowerCase().includes(q);
+        }
+
+        function applyFilters() {
+            const rSel = riskSel ? riskSel.value : "All Risk Levels";
+            const gSel = gaSel ? gaSel.value : "All Gestational Ages";
+            const aSel = assessSel ? assessSel.value : "All Assessment Status";
+            const q = (searchInput?.value || "").trim();
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const idText = tds[0]?.textContent || "";
+                const nameText = tds[1]?.textContent || "";
+                const gaText = tds[3]?.textContent || "";
+                const weeks = weeksFrom(gaText);
+                const lastAss = tds[5]?.textContent || "-";
+                const riskText = tds[tds.length - 2]?.textContent || "-"; // badge cell
+
+                const ok =
+                    matchesRisk(riskText, rSel) &&
+                    matchesGA(weeks, gSel) &&
+                    matchesAssess(lastAss, aSel) &&
+                    matchesSearch(idText, nameText, q);
+
+                row.style.display = ok ? "" : "none";
+            });
+        }
+
+        function attachPatientProfileNavigation() {
+            const buttons = document.querySelectorAll(".data-table .action-btn");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const patientId = btn.value;   // this comes from value= "record.id"
+                    if (!patientId) return;
+                    window.location.href = `/patients/patient_profile/${patientId}`;
+                });
+            });
+        }
+
+        attachPatientProfileNavigation();
+
+        if (riskSel) riskSel.addEventListener("change", applyFilters);
+        if (gaSel) gaSel.addEventListener("change", applyFilters);
+        if (assessSel) assessSel.addEventListener("change", applyFilters);
+        if (searchBtn) searchBtn.addEventListener("click", applyFilters);
+        if (searchInput) searchInput.addEventListener("keydown", e => { if (e.key === "Enter") applyFilters(); });
+    });
+</script>
+
+{% endblock %}
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materna: Patients Records</title>
+    <link rel="stylesheet" href="../../static/styles/background.css">
+    <style>
+        .controls-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .controls-subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            color: white;
+            font-size: medium;
+            font-weight: 550;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background-color: var(--coral);
+        }
+
+        .button-secondary {
+            background-color: var(--dark-blue);
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            border-top: 3px solid var(--light-blue);
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .summary-label {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .search-filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-label {
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background-color: var(--light-blue);
+            color: var(--navy);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: rgba(230, 249, 248, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="../../static/logo.png" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">Dr. Fatima Abubaker</div>
+                    <div class="user-role">Physician</div>
+                </div>
+                <img src="../../static/user.png" alt="User Icon" width="40px">
+            </div>
+        </header>
+        <nav class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="patients.html" class="active">Patients</a>
+            <a href="schedule.html">Schedule</a>
+            <a href="reports.html">Reports</a>
+            <a href="support.html">Support</a>
+            <a href=""><img src="../../static/lightmode.png" width="25px"></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="Controls">
+            <div>
+                <div class="controls-title">Patients</div>
+                <div class="controls-subtitle">Manage and monitor patient records and risk assessments</div>
+            </div>
+        </div>
+
+        <div class="summary-banner">
+            <div class="summary-item">
+                <div class="summary-number">124</div>
+                <div class="summary-label">Total Patients</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">18</div>
+                <div class="summary-label">High Risk</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">42</div>
+                <div class="summary-label">Medium Risk</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">64</div>
+                <div class="summary-label">Low Risk</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">7</div>
+                <div class="summary-label">Pending Assessment</div>
+            </div>
+        </div>
+
+        <div class="search-filter-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search patients by name, ID, or status...">
+                <button class="button-primary">Search</button>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter by:</span>
+                <select class="filter-dropdown">
+                    <option>All Risk Levels</option>
+                    <option>High Risk</option>
+                    <option>Medium Risk</option>
+                    <option>Low Risk</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Gestational Ages</option>
+                    <option>First Trimester (&lt; 13 weeks)</option>
+                    <option>Second Trimester (13-26 weeks)</option>
+                    <option>Third Trimester (&gt; 26 weeks)</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Assessment Status</option>
+                    <option>Assessed</option>
+                    <option>Pending</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Age</th>
+                    <th>Gestational Age</th>
+                    <th>Due Date</th>
+                    <th>Risk Level</th>
+                    <th>Last Assessment</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>P-24501</td>
+                    <td>Salma Omar</td>
+                    <td>28</td>
+                    <td>26 weeks</td>
+                    <td>Jul 19, 2025</td>
+                    <td><span class="risk-badge risk-medium">Medium</span></td>
+                    <td>Apr 10, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>P-24502</td>
+                    <td>Amina Jameel</td>
+                    <td>32</td>
+                    <td>18 weeks</td>
+                    <td>Sep 01, 2025</td>
+                    <td><span class="risk-badge risk-high">High</span></td>
+                    <td>Apr 15, 2025</td>
+                    <td><button class="button-secondary"
+                            onclick="window.location.href='patient-profile.html';">View</button></td>
+                </tr>
+                <tr>
+                    <td>P-24503</td>
+                    <td>Mariam Hadi</td>
+                    <td>29</td>
+                    <td>32 weeks</td>
+                    <td>Jun 02, 2025</td>
+                    <td><span class="risk-badge risk-low">Low</span></td>
+                    <td>Apr 12, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>P-24504</td>
+                    <td>Susan Nader</td>
+                    <td>35</td>
+                    <td>22 weeks</td>
+                    <td>Aug 12, 2025</td>
+                    <td><span class="risk-badge risk-medium">Medium</span></td>
+                    <td>Apr 16, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>P-24505</td>
+                    <td>Tayba Saeed</td>
+                    <td>27</td>
+                    <td>14 weeks</td>
+                    <td>Oct 05, 2025</td>
+                    <td><span class="risk-badge risk-low">Low</span></td>
+                    <td>Apr 14, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>P-24506</td>
+                    <td>Noor Salim</td>
+                    <td>31</td>
+                    <td>29 weeks</td>
+                    <td>Jun 25, 2025</td>
+                    <td><span class="risk-badge risk-high">High</span></td>
+                    <td>Apr 11, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <footer class="footer">
+        Physician dashboard for managing fetal PCB exposure assessments.
+        Please use this tool in conjuction with your clinical judgment.
+        Follow institutional policies.
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+</body>
+
+</html> -->

@@ -1,0 +1,63 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block additional_filters %}
+<input type="date" class="date-start" />
+<input type="date" class="date-end" />
+{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!rows.length) return;
+
+        const statusSel = document.querySelectorAll(".filter-dropdown")[0]; // "All Status" | ...
+        const startInp = document.querySelector(".date-start");
+        const endInp = document.querySelector(".date-end");
+
+        function parseDT(s) {
+            const d = new Date((s || "").trim());
+            return isNaN(d) ? null : d;
+        }
+        function parseDateOnly(inp) {
+            if (!inp || !inp.value) return null;
+            // start: 00:00:00, end: 23:59:59.999 (handled when used)
+            return new Date(inp.value + "T00:00:00");
+        }
+
+        function applyFilters() {
+            const sChoice = statusSel ? statusSel.value : "All Status";
+            const start = parseDateOnly(startInp);
+            const endStart = parseDateOnly(endInp);
+            const end = endStart ? new Date(endStart.getTime() + 86399999) : null; // inclusive end-of-day
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const dt = parseDT(tds[3]?.textContent || "");
+                const badgeTd = tds[tds.length - 2];
+                const statusText = (badgeTd?.textContent || "").trim(); // Scheduled/Completed/Cancelled
+
+                const okStatus = !statusSel || sChoice.startsWith("All") || statusText === sChoice;
+
+                let okRange = true;
+                if (start && !dt) okRange = false;
+                if (end && !dt) okRange = false;
+                if (dt && start && dt < start) okRange = false;
+                if (dt && end && dt > end) okRange = false;
+
+                row.style.display = (okStatus && okRange) ? "" : "none";
+            });
+        }
+
+        if (statusSel) statusSel.addEventListener("change", applyFilters);
+        if (startInp) startInp.addEventListener("change", applyFilters);
+        if (endInp) endInp.addEventListener("change", applyFilters);
+    });
+</script>
+
+
+{% endblock %}

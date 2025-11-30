@@ -1,0 +1,97 @@
+{% extends "layouts/main_layout.html" %}
+
+{% block title %}Appointment Details{% endblock %}
+
+{% block content %}
+<div style="max-width: 900px; margin: 0 auto;">
+    <!-- Header Banner -->
+    <div class="Controls" style="margin-top: 20px;">
+        <div>
+            <div class="Controls-title">AP-013 | Rasha Ibrahim</div>
+            <div class="Controls-subtitle">Apr 30, 2025 at 9:15 AM • Initial check</div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="button-secondary" onclick="window.location.href='schedule.html'">Back</button>
+            <button class="button-primary">Mark Complete</button>
+        </div>
+    </div>
+
+    <!-- Basic Information -->
+    <div
+        style="background: white; padding: 30px; border-radius: 10px; margin: 20px 0; box-shadow: 0px 1px 3px rgba(0,0,0,0.2);">
+        <h3 class="subheadings">Basic Information</h3>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 20px;">
+            <div>
+                <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 5px;">Patient</div>
+                <div style="font-size: 15px;">Rasha Ibrahim (P-24501)</div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 5px;">Date & Time
+                </div>
+                <div style="font-size: 15px;">Apr 30, 2025 at 9:15 AM</div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 5px;">Status</div>
+                <div><span class="status-badge status-pending">Scheduled</span></div>
+            </div>
+            <div>
+                <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 5px;">Purpose</div>
+                <div style="font-size: 15px;">Initial check</div>
+            </div>
+        </div>
+
+        <div style="margin-top: 25px;">
+            <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 8px;">Update Status</div>
+            <select id="statusSelect" style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px;">
+                <option value="scheduled" selected>Scheduled</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+                <option value="no_show">No Show</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Notes -->
+    <div
+        style="background: white; padding: 30px; border-radius: 10px; margin: 20px 0; box-shadow: 0px 1px 3px rgba(0,0,0,0.2);">
+        <h3 class="subheadings">Clinical Notes</h3>
+
+        <div style="margin-top: 20px;">
+            <div style="font-size: 14px; color: var(--navy); font-weight: 600; margin-bottom: 8px;">Appointment Notes
+            </div>
+            <div
+                style="background: var(--whtish); padding: 15px; border-radius: 5px; border-left: 3px solid var(--light-blue); line-height: 1.6;">
+                First prenatal visit. Patient reports no previous pregnancies.
+            </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px;">
+            <button class="button-secondary" onclick="cancelAppointment()">Cancel Appointment</button>
+            <button class="button-primary" onclick="saveChanges()">Save Changes</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function saveChanges() {
+        const status = document.getElementById('statusSelect').value;
+        const notes = document.getElementById('clinicalNotes').value;
+
+        console.log('Saving:', { status, notes });
+        showAppDialog('Appointment updated successfully!');
+        window.location.href = 'schedule.html';
+    }
+
+    function cancelAppointment() {
+        if (confirm('Cancel this appointment? The patient will be notified.')) {
+            showAppDialog('Appointment cancelled successfully.');
+            window.location.href = 'schedule.html';
+        }
+    }
+</script>
+{% endblock %}

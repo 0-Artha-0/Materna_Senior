@@ -1,0 +1,491 @@
+{% extends "layouts/main_layout.html" %}
+
+{% block title %}
+{% if data.is_result %}Test Result{% else %}Test Request{% endif %}
+{% endblock %}
+
+{% block styles %}
+<style>
+    .breadcrumb {
+        display: flex;
+        align-items: center;
+        margin-top: 20px;
+        color: var(--dark-blue);
+    }
+
+    .breadcrumb a {
+        color: var(--dark-blue);
+        text-decoration: none;
+    }
+
+    .breadcrumb a:hover {
+        text-decoration: underline;
+    }
+
+    .breadcrumb .separator {
+        margin: 0 10px;
+    }
+
+    .controls {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        margin: 20px 0;
+        padding: 20px;
+        background-color: var(--light-blue);
+        color: var(--navy);
+        border-radius: 10px;
+        border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+    }
+
+    .controls-title {
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .controls-subtitle {
+        font-size: 14px;
+        margin-top: 5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .info-card {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background-color: var(--dark-blue);
+        color: white;
+        padding: 15px 20px;
+        font-weight: bold;
+        font-size: 16px;
+    }
+
+    .card-body {
+        padding: 20px;
+    }
+
+    .patient-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 20px;
+    }
+
+    .info-group {
+        margin-bottom: 15px;
+    }
+
+    .info-label {
+        font-size: 14px;
+        color: #777;
+        margin-bottom: 5px;
+    }
+
+    .info-value {
+        font-size: 16px;
+        font-weight: 500;
+    }
+
+    .test-results-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 15px;
+    }
+
+    .test-results-table th,
+    .test-results-table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #eee;
+    }
+
+    .test-results-table thead {
+        background-color: var(--mint);
+        color: var(--navy);
+    }
+
+    .test-results-table th:first-child,
+    .test-results-table td:first-child {
+        padding-left: 20px;
+    }
+
+    .report-section {
+        background-color: var(--mint);
+        padding: 15px;
+        border-radius: 5px;
+        margin: 20px 0;
+    }
+
+    .report-section h3 {
+        color: var(--navy);
+        margin-top: 0;
+    }
+
+    .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+
+    .column {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    .notes-form {
+        margin-top: 15px;
+    }
+
+    .notes-input {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        resize: vertical;
+        min-height: 100px;
+        font-family: inherit;
+    }
+
+    .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .modal-box {
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        max-width: 380px;
+        width: 100%;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-message {
+        margin-bottom: 16px;
+    }
+
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="confirm-modal" class="modal-backdrop" style="display:none;">
+    <div class="modal-box">
+        <div id="confirm-message" class="modal-message"></div>
+        <div class="modal-actions">
+            <button id="confirm-cancel" class="button-secondary">Cancel</button>
+            <button id="confirm-ok" class="button-primary">OK</button>
+        </div>
+    </div>
+</div>
+
+
+{# mode: "result" or "request" #}
+{% set is_result = data.mode == 'result' %}
+
+<div class="breadcrumb">
+    <a href="#">Lab Tests</a>
+    <span class="separator">></span>
+    <span>
+        {% if is_result %}
+        Test Result #{{ data.id }}
+        {% else %}
+        Test Request #{{ data.id }}
+        {% endif %}
+    </span>
+</div>
+
+<div class="controls">
+    <div>
+        <div class="controls-title">
+            {% if is_result %}
+            PCB Test Result Details
+            {% else %}
+            PCB Test Request Details
+            {% endif %}
+        </div>
+        <div class="controls-subtitle">
+            Test ID: {{ data.id }} |
+            {{ data.patient_name }} |
+            {{ data.test_type }}
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        {% if is_result %}
+        <button class="button-secondary" style="background-color: rgb(255, 170, 0);">Flag for Retest</button>
+        <button class="button-secondary">Print Report</button>
+        <form method="post" action="/lab-tests/{{ data.id }}/release" onsubmit="return confirmSendResults()"
+            style="display:inline;">
+            <button type="submit" class="button-primary">Send Results</button>
+        </form>
+        {% else %}
+        <form method="post" action="/lab-tests/{{ data.id }}/dispatch" onsubmit="return showProcessingDialog()"
+            style="display:inline;">
+            <button type="submit" class="button-primary">Dispatch to Machine</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<div class="row">
+    <div class="column">
+        <div class="info-card">
+            <div class="card-header">Patient Information</div>
+            <div class="card-body">
+                <div class="patient-info">
+                    <div>
+                        <div class="info-group">
+                            <div class="info-label">Patient Name</div>
+                            <div class="info-value">{{ data.patient_name }}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Patient ID</div>
+                            <div class="info-value">{{ data.patient_id }}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Age</div>
+                            <div class="info-value">
+                                {% if data.patient_age is not none %}
+                                {{ data.patient_age }} years
+                                {% else %}
+                                -
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-group">
+                            <div class="info-label">Gestational Age</div>
+                            <div class="info-value">
+                                {% if data.gestational_age %}
+                                {{ data.gestational_age }} weeks
+                                {% else %}
+                                -
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Referring Physician</div>
+                            <div class="info-value">
+                                {{ data.physician_name or '-' }}
+                            </div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Contact Number</div>
+                            <div class="info-value">
+                                +971 {{ data.physician_contact or '-' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="column">
+        <div class="info-card">
+            <div class="card-header">Test Information</div>
+            <div class="card-body">
+                <div class="patient-info">
+                    <div>
+                        <div class="info-group">
+                            <div class="info-label">Test ID</div>
+                            <div class="info-value">{{ data.id }}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Test Type</div>
+                            <div class="info-value">{{ data.test_type }}</div>
+                        </div>
+                        <div class="info-group">
+                            <div class="info-label">Collection Date</div>
+                            <div class="info-value">
+                                {{ data.collection_date or '-' }}
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="info-group">
+                            <div class="info-label">
+                                {% if is_result %}Result Date{% else %}Expected Result Date{% endif %}
+                            </div>
+                            <div class="info-value">
+                                {% if is_result %}
+                                {{ data.result_date or 'Pending' }}
+                                {% else %}
+                                {{ data.result_date or '-' }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if is_result %}
+                        <div class="info-group" style="margin-top: 10px;">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">
+                                <span class="risk-badge risk-{{ data.risk or 'low' }}">
+                                    {{ (data.risk or 'low')|capitalize }} Risk
+                                </span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="info-group">
+                            <div class="info-label">Technician</div>
+                            <div class="info-value">
+                                {{ data.technician or '-' }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if is_result %}
+<div class="info-card">
+    <div class="card-header">PCB Exposure Results</div>
+    <div class="card-body">
+        <table class="test-results-table">
+            <thead>
+                <tr>
+                    <th>PCB Compound</th>
+                    <th>Level (ng/g_lipid)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pcb in data.pcb_results %}
+                <tr>
+                    <td>{{ pcb.name }}</td>
+                    <td>{{ pcb.level }}</td>
+                </tr>
+                {% endfor %}
+                {% if data.total_pcb is not none %}
+                <tr>
+                    <td><strong>Total PCB Level</strong></td>
+                    <td><strong>{{ data.total_pcb }}</strong></td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="report-section">
+    <h3>Summary Report</h3>
+    <p>
+        {{ data.summary or "The test results indicate a level of PCB exposure consistent with the recorded severity and
+        risk assessment. Please review the detailed compound levels above and consider appropriate clinical follow-up
+        based on maternal and fetal risk." }}
+    </p>
+    {% if data.recommendations %}
+    <p>{{ data.recommendations }}</p>
+    {% endif %}
+</div>
+
+<div class="info-card">
+    <div class="card-header">Additional Notes</div>
+    <div class="card-body">
+        <form class="notes-form" method="post" action="/lab-tests/{{ data.id }}/notes">
+            <textarea class="notes-input" name="notes"
+                placeholder="Add your notes about this test result...">{{ data.notes or '' }}</textarea>
+            <div class="action-buttons">
+                <button type="submit" class="button-primary">Save Notes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="info-card">
+    <div class="card-header">Request Status</div>
+    <div class="card-body">
+        <p>
+            This test request is currently marked as
+            <strong>{{ data.status|capitalize }}</strong>
+            with severity:
+            <span class="risk-badge risk-{{ data.severity or 'medium' }}">
+                {{ (data.severity or 'medium')|capitalize }}
+            </span>
+        </p>
+        <p>
+            {% if data.is_released %}
+            Results have already been released for this test.
+            {% else %}
+            The sample is pending processing. Once dispatched to the machine and completed,
+            results will appear in this same view.
+            {% endif %}
+        </p>
+        {% if data.notes %}
+        <p><strong>Current Notes:</strong> {{ data.notes }}</p>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script>
+    function showProcessingDialog() {
+        showAppDialog("Processing by machine...");
+        return true; // allow form submission
+    }
+
+    function confirmSendResults() {
+        return showConfirm("Are you sure you want to send the results to the physician?");
+    }
+
+    // Show success dialog after redirect
+    (function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("sent") === "1") {
+            showAppDialog("Results successfully sent to the physician.");
+        }
+    })();
+
+    function showConfirm(message) {
+        return new Promise((resolve) => {
+            const modal = document.getElementById('confirm-modal');
+            const msgEl = document.getElementById('confirm-message');
+            const okBtn = document.getElementById('confirm-ok');
+            const cancelBtn = document.getElementById('confirm-cancel');
+
+            msgEl.textContent = message;
+            modal.style.display = 'flex';
+
+            // clear old handlers if any
+            okBtn.onclick = () => {
+                modal.style.display = 'none';
+                resolve(true);
+            };
+            cancelBtn.onclick = () => {
+                modal.style.display = 'none';
+                resolve(false);
+            };
+        });
+    }
+
+</script>
+
+{% endblock %}

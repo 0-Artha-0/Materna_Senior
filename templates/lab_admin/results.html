@@ -1,0 +1,397 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const selects = document.querySelectorAll(".filter-dropdown");
+        if (selects.length < 2) return;
+
+        const statusSel = selects[0]; // All Status | Ready | Released
+        const typeSel = selects[1]; // All Test Types | …
+
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!rows.length) return;
+
+        function applyFilters() {
+            const sChoice = statusSel.value;
+            const tChoice = typeSel.value;
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                const testType = (tds[3]?.textContent || "").trim();
+                const badgeTd = tds[tds.length - 2];
+                const statusText = (badgeTd?.textContent || "").trim(); // Ready / Released
+
+                const okStatus = sChoice.startsWith("All") || statusText === sChoice;
+                const okType = tChoice.startsWith("All") || testType === tChoice;
+
+                row.style.display = (okStatus && okType) ? "" : "none";
+            });
+        }
+
+        statusSel.addEventListener("change", applyFilters);
+        typeSel.addEventListener("change", applyFilters);
+
+        function attachResultViewNavigation() {
+            const buttons = document.querySelectorAll(".data-table .action-btn");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const testID = btn.value;   // this comes from value= "record.id"
+                    if (!testID) return;
+                    window.location.href = `/lab-tests/${testID}/result`;
+                });
+            });
+        }
+
+        attachResultViewNavigation();
+    });
+</script>
+
+{% endblock %}
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materna: Test Results</title>
+    <link rel="stylesheet" href="../../static/styles/background.css">
+
+    <style>
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--light-blue);
+            color: var(--navy);
+            border-radius: 10px;
+            border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+        }
+
+        .controls-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .controls-subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            color: white;
+            font-size: medium;
+            font-weight: 550;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background-color: var(--coral);
+        }
+
+        .button-secondary {
+            background-color: var(--dark-blue);
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            border-top: 3px solid var(--light-blue);
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .summary-label {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .search-filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-label {
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background-color: var(--light-blue);
+            color: var(--navy);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: rgba(230, 249, 248, 0.3);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 30px 0 15px 0;
+            color: var(--dark-blue);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="../../static/logo.png" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">Waleed Rami</div>
+                    <div class="user-role">Lab Administrator</div>
+                </div>
+                <img src="../../static/user.png" alt="User Icon" width="40px">
+            </div>
+        </header>
+        <nav class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="results.html" class="active">Lab Results</a>
+            <a href="requests.html">Test Requests</a>
+            <a href="reports.html">Reports</a>
+            <a href="support.html">Support</a>
+            <a href=""><img src="../../static/lightmode.png" width="25px"></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="controls">
+            <div>
+                <div class="controls-title">Lab Results</div>
+                <div class="controls-subtitle">Manage and monitor PCB test results for patients</div>
+            </div>
+            <div class="action-buttons">
+                <button class="button-primary">Enter New Result</button>
+            </div>
+        </div>
+
+        <div class="summary-banner">
+            <div class="summary-item">
+                <div class="summary-number">98</div>
+                <div class="summary-label">Total Tests</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">15</div>
+                <div class="summary-label">Critical Results</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">72</div>
+                <div class="summary-label">Completed</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">26</div>
+                <div class="summary-label">In Progress</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">11</div>
+                <div class="summary-label">New Requests</div>
+            </div>
+        </div>
+
+        <div class="search-filter-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search by patient name, ID or test type...">
+                <button class="button-primary">Search</button>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter by:</span>
+                <select class="filter-dropdown">
+                    <option>All Test Status</option>
+                    <option>Completed</option>
+                    <option>In Progress</option>
+                    <option>Pending</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Test Types</option>
+                    <option>Blood Serum</option>
+                    <option>Amniotic Fluid</option>
+                    <option>Tissue Sample</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Result Types</option>
+                    <option>Critical</option>
+                    <option>Above Reference</option>
+                    <option>Normal Range</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Test ID</th>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Test Type</th>
+                    <th>PCB Level (ng/mL)</th>
+                    <th>Status</th>
+                    <th>Collection Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>T-35671</td>
+                    <td>P-24501</td>
+                    <td>Salma Omar</td>
+                    <td>Blood Serum</td>
+                    <td>3.8</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td>Apr 09, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>T-35682</td>
+                    <td>P-24502</td>
+                    <td>Amina Jameel</td>
+                    <td>Amniotic Fluid</td>
+                    <td>6.2</td>
+                    <td><span class="status-badge status-critical">Critical</span></td>
+                    <td>Apr 14, 2025</td>
+                    <td><button class="button-secondary" onclick="location.href='patient-result.html'">View</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td>T-35690</td>
+                    <td>P-24503</td>
+                    <td>Mariam Hadi</td>
+                    <td>Blood Serum</td>
+                    <td>1.5</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td>Apr 11, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>T-35701</td>
+                    <td>P-24504</td>
+                    <td>Susan Nader</td>
+                    <td>Blood Serum</td>
+                    <td>4.1</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td>Apr 15, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>T-35705</td>
+                    <td>P-24505</td>
+                    <td>Tayba Saeed</td>
+                    <td>Tissue Sample</td>
+                    <td>-</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td>Apr 13, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+                <tr>
+                    <td>T-35712</td>
+                    <td>P-24506</td>
+                    <td>Noor Salim</td>
+                    <td>Amniotic Fluid</td>
+                    <td>5.7</td>
+                    <td><span class="status-badge status-critical">Critical</span></td>
+                    <td>Apr 10, 2025</td>
+                    <td><button class="button-secondary">View</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="footer">
+        Labratory Administrator portal for the Fetal PCB Prediction Tool. All testing should be performed according to
+        standardized protocols. Critical values should be immediately informed to the attending physician for
+        appropriate clinical intervention.
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+    </footer>
+</body>
+
+</html> -->

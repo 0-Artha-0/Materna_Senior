@@ -1,0 +1,476 @@
+{% extends "layouts/main_layout.html" %}
+
+{% block title %}New Patient Record{% endblock %}
+
+{% block styles %}
+<style>
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .form-container {
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-section {
+        margin-bottom: 25px;
+    }
+
+    .form-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+        color: var(--navy);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .form-textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+        min-height: 100px;
+    }
+
+    .form-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 15px;
+    }
+
+    .file-upload {
+        margin-top: 10px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="Controls">
+    <div>
+        <div class="Controls-title">Patient Data Entry</div>
+        <div class="Controls-subtitle">Enter patient information for PCB risk assessment</div>
+    </div>
+    <div class="action-buttons">
+        <button class="button-secondary" onclick="location.href='/patients.html'">Cancel</button>
+        <button class="button-primary" type="submit" form="patientForm">Save Patient Data</button>
+    </div>
+</div>
+
+<form id="patientForm" class="form-container" method="post" action="/patient/save">
+    <div class="form-section">
+        <div class="section-title">Patient Information</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label">Full Name</label>
+                <input type="text" class="form-input" name="name" placeholder="First and Last Name" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-input" name="bdate" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-input" name="age" placeholder="Age in years" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Gestational Age</label>
+                <input type="number" class="form-input" name="gestational_age" placeholder="Number of weeks" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-input" name="due_date" required>
+            </div>
+        </div>
+    </div>
+
+    {# options_macros.html #}
+    {% macro food_frequency_options() %}
+    <option value="1">Less than once a month or never</option>
+    <option value="2">1–3 times a month</option>
+    <option value="3">Once a week</option>
+    <option value="4">2–4 times a week</option>
+    <option value="5">5–6 times a week</option>
+    <option value="6">Once a day</option>
+    <option value="7">2–3 times a day</option>
+    <option value="8">More than 4 times a day</option>
+    {% endmacro %}
+
+    <div class="form-section">
+        <div class="section-title">Lifestyle & Health</div>
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label class="form-label">Highest education level</label>
+                <select class="form-input" name="maternal_education" required>
+                    <option value="">Select education level</option>
+                    <option value="1">No job-related training after school</option>
+                    <option value="2">Technical / trade school</option>
+                    <option value="3">College-level diploma</option>
+                    <option value="4">Applied sciences university</option>
+                    <option value="5">University degree</option>
+                    <option value="6">Other education</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Smoking history</label>
+                <select class="form-input" name="smoking" required>
+                    <option value="">Select smoking status</option>
+                    <option value="1">Never smoked regularly</option>
+                    <option value="2">Quit before pregnancy</option>
+                    <option value="3">Quit when pregnancy was confirmed</option>
+                    <option value="4">Quit later in pregnancy</option>
+                    <option value="5">Smoked during pregnancy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Alcohol during pregnancy</label>
+                <select class="form-input" name="alcohol" required>
+                    <option value="">Select alcohol use</option>
+                    <option value="1">No alcohol at all</option>
+                    <option value="2">A few times during pregnancy</option>
+                    <option value="3">Monthly</option>
+                    <option value="4">Weekly</option>
+                    <option value="5">Several times a week</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Vaccinations up to date</label>
+                <select class="form-input" name="vaccination_program" required>
+                    <option value="">Select status</option>
+                    <option value="1">Yes</option>
+                    <option value="2">No</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Maternal BMI</label>
+                <input type="number" class="form-input" name="bmi" placeholder="e.g. 29.5" step="0.1" min="10" max="60"
+                    required>
+            </div>
+
+        </div>
+    </div>
+
+
+    <div class="form-section">
+        <div class="section-title">Dietary Information</div>
+        <div class="form-grid">
+
+            <!-- Dairy & drinks -->
+            <div class="form-group">
+                <label class="form-label">Dairy portions per day</label>
+                <input type="number" class="form-input" name="daily_dairy_doses" placeholder="0–4" step="0.5" min="0"
+                    max="4" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Cheese slices per day</label>
+                <input type="number" class="form-input" name="cheese_slices" placeholder="1–10" min="0" max="10"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Total dairy per day (all products)</label>
+                <input type="number" class="form-input" name="sum_dairy_products" placeholder="e.g. 4.0" step="0.1"
+                    min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Cups of regular coffee per day</label>
+                <input type="number" class="form-input" name="cups_coffee" placeholder="0–7" step="0.5" min="0" max="7"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Cups of tea per day</label>
+                <input type="number" class="form-input" name="cups_tea" placeholder="0–4" step="0.5" min="0" max="4"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Cups of green tea per day</label>
+                <input type="number" class="form-input" name="cups_green_tea" placeholder="0–3" step="0.5" min="0"
+                    max="3" required>
+            </div>
+
+            <!-- Bread & potatoes -->
+            <div class="form-group">
+                <label class="form-label">Rye / crispbread</label>
+                <select class="form-input" name="rye_bread" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Yeast / graham / mixed bread</label>
+                <select class="form-input" name="mixed_bread" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Boiled potatoes / mash</label>
+                <select class="form-input" name="boiled_potatoes" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Fried potatoes / fries</label>
+                <select class="form-input" name="fried_potatoes" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <!-- Meat, poultry & eggs -->
+            <div class="form-group">
+                <label class="form-label">Beef</label>
+                <select class="form-input" name="beef" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Reindeer or game meat</label>
+                <select class="form-input" name="game_meat" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Light meat (e.g. chicken)</label>
+                <select class="form-input" name="light_meat" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Sausage dishes</label>
+                <select class="form-input" name="sausage_dishes" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Eggs (any form)</label>
+                <select class="form-input" name="eggs" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <!-- Fish & seafood -->
+            <div class="form-group">
+                <label class="form-label">Fish dishes (total)</label>
+                <select class="form-input" name="fish_dishes_total" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Rainbow trout / Norwegian salmon</label>
+                <select class="form-input" name="trout_salmon" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Domestic sea salmon</label>
+                <select class="form-input" name="native_salmon" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Lake fish</label>
+                <select class="form-input" name="lake_fish" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Frozen fish products</label>
+                <select class="form-input" name="frozen_fish" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Shrimp</label>
+                <select class="form-input" name="shrimp" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <!-- Fruits, juice, cooking styles -->
+            <div class="form-group">
+                <label class="form-label">Apple</label>
+                <select class="form-input" name="apple" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Apple juice</label>
+                <select class="form-input" name="apple_juice" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Grilled meat / fish / vegetables</label>
+                <select class="form-input" name="grilled_food" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Smoked meat or fish</label>
+                <select class="form-input" name="smoked_food" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Breaded meat or fish</label>
+                <select class="form-input" name="breaded_food" required>
+                    <option value="">Select frequency</option>
+                    {{ food_frequency_options() }}
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">Environment & Supplements</div>
+        <div class="form-grid">
+
+            <div class="form-group">
+                <label class="form-label">Workplace chemical exposure</label>
+                <select class="form-input" name="chemical_exposure" required>
+                    <option value="">Select exposure</option>
+                    <option value="1">No exposure</option>
+                    <option value="2">Yes, before pregnancy</option>
+                    <option value="3">Yes, during pregnancy</option>
+                    <option value="4">Yes, before and during pregnancy</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Number of different preparations</label>
+                <input type="number" class="form-input" name="total_preparations" placeholder="1–15" min="0" max="15"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Iron-containing preparation</label>
+                <select class="form-input" name="iron_preparation" required>
+                    <option value="">Select iron use</option>
+                    <option value="0">No iron preparations</option>
+                    <option value="1">Yes, iron preparation</option>
+                    <option value="2">Yes, in multivitamin / with calcium</option>
+                    <option value="3">Yes, several products at the same time</option>
+                    <option value="4">Yes, occasionally</option>
+                    <option value="5">Yes, multivitamin (details not specified)</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">First Appointment</div>
+        <div class="form-grid">
+            <div class="form-group">
+                <label class="form-label" for="physician_id">Assigned physician</label>
+                <select class="form-input" id="physician_id" name="physician_id" required>
+                    <option value="">Select physician</option>
+                    {% for physician in data.physicians %}
+                    <option value="{{ physician.id }}" {% if patient is defined and patient and
+                        patient.physician_id==physician.id %} selected {% endif %}>
+                        {{ physician.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Appointment date and time</label>
+                <input type="datetime-local" class="form-input" name="appointment_datetime">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Appointment purpose</label>
+                <input type="text" class="form-input" name="appointment_purpose" placeholder="e.g. Follow-up visit">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="section-title">Additional Information</div>
+        <div class="form-group">
+            <label class="form-label">Notes</label>
+            <textarea class="form-textarea" placeholder="Enter any additional information or observations"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Upload Patient Documents</label>
+            <input type="file" class="file-upload" multiple>
+        </div>
+
+        <div class="form-checkbox">
+            <input type="checkbox" id="consent" name="consent">
+            <label for="consent">Patient has provided consent for data collection and analysis</label>
+        </div>
+
+        <div class="form-checkbox">
+            <input type="checkbox" id="complete" name="is_complete">
+            <label for="complete">Mark patient record as complete</label>
+        </div>
+    </div>
+</form>
+{% endblock %}

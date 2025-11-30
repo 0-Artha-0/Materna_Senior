@@ -1,0 +1,42 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Schedule{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const typeSel = document.querySelector(".filter-dropdown"); // only one
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!typeSel || !rows.length) return;
+
+        function applyFilters() {
+            const tChoice = typeSel.value;
+            rows.forEach(row => {
+                const testType = (row.querySelectorAll("td")[3]?.textContent || "").trim();
+                row.style.display = tChoice.startsWith("All") || testType === tChoice ? "" : "none";
+            });
+        }
+
+        typeSel.addEventListener("change", applyFilters);
+
+        function attachTestViewNavigation() {
+            const buttons = document.querySelectorAll(".data-table .action-btn");
+            buttons.forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const testID = btn.value;   // this comes from value= "record.id"
+                    if (!testID) return;
+                    window.location.href = `/lab-tests/${testID}/request`;
+                });
+            });
+        }
+
+        attachTestViewNavigation();
+
+    });
+</script>
+
+
+
+{% endblock %}

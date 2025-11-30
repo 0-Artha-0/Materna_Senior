@@ -1,0 +1,115 @@
+{% extends "layouts/parent_layout.html" %}
+
+<!-- User Info Card -->
+{% block user %}
+<div class="user-info">
+    <div>
+        <div>
+            <div class="user-name">{{data.first_name}} {{data.last_name}}</div>
+            <div class="user-role">{{data.job}}</div>
+        </div>
+        <img src="{{ url_for('static', path='user.png') }}" alt="User Icon" width="40px">
+    </div>
+    <button class="Controls button-secondary"
+        style="padding: 5px; margin: 0px; font-size: small; justify-content: center; background-color: var(--light-blue);"
+        onclick="logout();">Logout</button>
+</div>
+{% endblock %}
+
+<!-- Navigtaion List (Depends on User Role) -->
+{% block nav %}
+
+{% macro nav_link(label, href) %}
+{% set current_page = request.url.path.split('/')[1] %}
+<a href="/{{ href }}" class="{{ 'active' if href.startswith(current_page) else ''}}">{{ label }}</a>
+{% endmacro %}
+
+
+{# Old implementation: % include "layouts/navbars/" ~ data.role ~ ".html" % #}
+
+<!-- Display special navigation bar for each user -->
+<!-- Home link shared between all -->
+{{ nav_link('Home', 'home.html') }}
+
+{% if data.role == 'admin' %}
+<!-- Role: Admin -->
+
+{{ nav_link('Dashboard', 'dashboard.html') }}
+{{ nav_link('Accounts Manager', 'accounts.html') }}
+{{ nav_link('Reports', 'reports.html') }}
+
+{% elif data.role == 'physician' %}
+<!-- Role: Physician -->
+
+{{ nav_link('Patients', 'patients.html') }}
+{{ nav_link('Schedule', 'schedule.html') }}
+{{ nav_link('Support', 'support.html') }}
+
+{% elif data.role == 'lab_admin' %}
+<!-- Role: Lab Admin -->
+
+{{ nav_link('Lab Results', 'results.html') }}
+{{ nav_link('Test Requests', 'requests.html') }}
+{{ nav_link('Support', 'support.html') }}
+
+{% elif data.role == 'data_clerk' %}
+<!-- Role: Data Receptionist -->
+
+{{ nav_link('Patients', 'patients.html') }}
+{{ nav_link('Appointments', 'appointments.html') }}
+{{ nav_link('Support', 'support.html') }}
+
+{% else %}
+<!-- Role: Researcher -->
+
+{{ nav_link('Support', 'support.html') }}
+
+{% endif %}
+<a href=""><img src="{{ url_for('static', path='lightmode.png') }}" width="25px"></a>
+
+{% endblock %}
+
+<!-- Footer -->
+{% block footer %}
+
+<!-- Display special footer for each user -->
+{% if data.role == 'admin' %}
+<!-- Role: Admin -->
+Administrator dashboard for managing users, viewing reports, and overseeing system performance.
+Ensure all activities comply with organizational policies and data protection regulations.
+
+{% elif data.role == 'physician' %}
+<!-- Role: Physician -->
+Physician dashboard for managing fetal PCB exposure assessments.
+Please use this tool in conjuction with your clinical judgment.
+Follow institutional policies.
+
+{% elif data.role == 'lab_admin' %}
+<!-- Role: Lab Admin -->
+Labratory Administrator portal for the Fetal PCB Prediction Tool. All testing should be performed according to
+standardized protocols. Critical values should be immediately informed to the attending physician for
+appropriate clinical intervention.
+
+{% elif data.role == 'data_clerk' %}
+<!-- Role: Data Receptionist -->
+Data Receptionist portal for the Fetal PCB Prediction Tool. All patient information entered is confidential and
+protected under privacy policies. Please ensure accuracy and completeness of all records.
+
+{% else %}
+<!-- Role: Researcher -->
+Research dashboard for maternal and fetal PCB exposure insights and analysis. All insights are generated using
+predictive models. Please interpret results in conjunction with clinical expertise and institutional guidelines.
+
+{% endif %}
+{% endblock %}
+
+<!-- Additional Scripts -->
+{% block scripts %}
+<script>
+    function logout() {
+
+        // Route clears session data then redirects to login page
+        window.location.href = '/logout';
+    }
+</script>
+{% endblock %}

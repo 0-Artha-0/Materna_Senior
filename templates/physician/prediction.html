@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materna: Assesment Results</title>
+    <link rel="stylesheet" href="../../static/styles/background.css">
+
+    <style>
+        .patient-name {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .patient-id {
+            color: var(--dark-blue);
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 30px 0 15px 0;
+            color: var(--dark-blue);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .prediction-result {
+            background-color: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-top: 3px solid var(--dark-blue);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .prediction-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: var(--dark-blue);
+            margin: 20px 0;
+        }
+
+        .prediction-details {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .actions-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .button {
+            padding: 10px 15px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+        }
+
+        .button-primary {
+            background-color: var(--coral);
+            color: white;
+        }
+
+        .button-secondary {
+            margin-right: 10px;
+            width: 175px;
+            background-color: var(--dark-blue);
+            color: white;
+        }
+
+        .save-container {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="../../static/logo.png" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">Dr. Fatima Abubaker</div>
+                    <div class="user-role">Physician</div>
+                </div>
+                <img src="../../static/user.png" alt="User Icon" width="40px">
+            </div>
+        </header>
+        <nav class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="patients.html" class="active">Patients</a>
+            <a href="schedule.html">Schedule</a>
+            <a href="reports.html">Reports</a>
+            <a href="support.html">Support</a>
+            <a href=""><img src="../../static/lightmode.png" width="25px"></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="Controls">
+            <div>
+                <div class="patient-name">Amina Jameel</div>
+                <div class="patient-id">Patient ID: P-24502</div>
+            </div>
+            <div>
+                <button class="button-secondary" onclick="location.href='patient-assessment.html';">Back to Assesment
+                    Form</button>
+            </div>
+        </div>
+
+        <div class="section-title">Prediction Results</div>
+        <div class="prediction-result">
+            <div class="prediction-details">Fetal PCB-118 Prediction</div>
+            <div class="prediction-value" id="pred_value">8.4 ng/g_lipid</div>
+            <div class="prediction-details">
+                <span class="risk-badge risk-high">High Risk</span>
+            </div>
+            <div class="prediction-details" style="color: #777; margin-top: 15px;">
+                Prediction generated on April 22, 2025 at 14:32
+            </div>
+        </div>
+
+        <div class="section-title">Available Actions</div>
+        <div class="actions-container">
+            <button class="button button-secondary">Add Comments</button>
+
+            <button class="button button-secondary">View Confidence Score</button>
+
+            <button class="button button-secondary">Schedule Follow-up</button>
+
+            <button class="button button-secondary">Explain Prediction Results</button>
+
+            <button class="button button-secondary">Flag Patient Case</button>
+        </div>
+
+        <div class="save-container">
+            <button class="button button-primary" style="padding: 12px 30px; font-size: 16px;">Save Results</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        Physician dashboard for managing fetal PCB exposure assessments.
+        Please use this tool in conjuction with your clinical judgment.
+        Follow institutional policies.
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+        </div>
+
+        <script>
+            // Display prediction value from localStorage
+            document.addEventListener('DOMContentLoaded', function () {
+                const predValue = localStorage.getItem('cPCB_prediction');
+                if (predValue) {
+                    document.getElementById('pred_value').textContent = predValue + " ng/g_lipid";
+                    console.log('Predicted data fetched successfully:', predValue);
+                }
+            });
+        </script>
+</body>
+
+</html>

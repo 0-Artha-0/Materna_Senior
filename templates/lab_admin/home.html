@@ -1,0 +1,126 @@
+{% extends "layouts/home_layout.html" %}
+
+{% block styles %}
+
+{{ super() }}
+
+<style>
+    .lab-metrics {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        margin-bottom: 20px;
+    }
+
+    .metrics-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+    }
+
+    .metric-card {
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        background-color: var(--mint);
+        border-left: 4px solid var(--dark-blue);
+    }
+
+    .metric-number {
+        font-size: 24px;
+        font-weight: bold;
+        color: var(--navy);
+        margin-bottom: 5px;
+    }
+
+    .pending-tests {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .test-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #eee;
+    }
+
+    .test-item:last-child {
+        border-bottom: none;
+    }
+
+    .test-patient {
+        font-weight: bold;
+    }
+
+    .test-info {
+        color: rgba(0, 0, 0, 0.7);
+        font-size: 14px;
+    }
+
+    .test-priority {
+        color: var(--dark-blue);
+        font-weight: 500;
+    }
+
+    .priority-high {
+        color: var(--coral);
+    }
+
+    .progress-bar-container {
+        width: 100%;
+        height: 8px;
+        background-color: #eee;
+        border-radius: 4px;
+        margin-top: 10px;
+    }
+
+    .progress-bar {
+        height: 100%;
+        background-color: var(--light-blue);
+        border-radius: 4px;
+    }
+</style>
+{% endblock %}
+
+{% block home_button_href %}requests.html{% endblock %}
+{% block button %}View Test Queue{% endblock %}
+
+
+<!-- Quick Actions Buttons -->
+{% block quickActions %}
+<button class="action-card" id='results'>
+    <div class="icon">✅</div>
+    <h3>Verify Results</h3>
+    <p>Review and approve</p>
+</button>
+<button class="action-card" id='requests'>
+    <div class="icon">⏳</div>
+    <h3>Test Queue</h3>
+    <p>Manage pending tests</p>
+</button>
+{% endblock %}
+
+{% block notifications %}
+
+<div class="pending-tests">
+    <div class="section-title">Priority Test Queue</div>
+
+    {% for notif in data.notifications.summary %}
+    <div class="test-item">
+        <div>
+            <div class="test-patient">{{ notif.patient_name }}</div>
+            <div class="test-info">{{ notif.info }}</div>
+        </div>
+        <div class="test-priority priority-high">{{ notif.priority_text }}</div>
+    </div>
+    {% endfor %}
+    <div style="text-align: center; margin-top: 15px;">
+        <button class="button-secondary" onclick="location.href='requests.html'">View Full Queue</button>
+    </div>
+</div>
+{% endblock %}

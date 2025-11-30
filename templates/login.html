@@ -1,0 +1,210 @@
+{% extends "layouts/parent_layout.html" %}
+
+<!-- Page title -->
+{% block title %}
+Login
+{% endblock %}
+
+<!-- Additional Styles -->
+{% block styles %}
+<style>
+    .content {
+        flex: 1;
+        display: flex;
+    }
+
+    .login-container {
+        padding: 30px;
+        margin: 20px 0px;
+        width: 100%;
+        max-width: 400px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0px 1px 8px rgba(0, 0, 0, 0.2);
+        border-top: 4px solid var(--light-blue);
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 25px;
+        color: var(--dark-blue);
+    }
+
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        color: var(--navy);
+    }
+
+    .form-group input,
+    .form-group select {
+        padding: 10px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-size: 16px;
+        transition: border 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: var(--light-blue);
+    }
+
+    .login-button {
+        background-color: var(--coral);
+        color: white;
+        padding: 12px;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background-color 0.3s;
+    }
+
+    .login-button:hover {
+        background-color: #d95a43;
+    }
+
+    .support-link {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 14px;
+    }
+
+    .support-link a {
+        color: var(--dark-blue);
+        text-decoration: none;
+    }
+
+    .support-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+<!-- Navigation Links -->
+{% block nav %}
+<a href="/" class="active">Login</a>
+{% endblock %}
+
+<!-- Main Content -->
+{% block content %}
+<div class="login-container">
+    <div class="login-header">
+        <h2>Account Login</h2>
+        <p>Enter your credentials to access the system</p>
+    </div>
+    <form action="/login" method="post" class="login-form" id="login-form">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label for="role">User Type</label>
+            <select id="role" name="role" required>
+                <option value="" disabled selected>Select user type</option>
+                <option value="administrator">Administrator</option>
+                <option value="physician">Physician</option>
+                <option value="lab administrator">Lab Administrator</option>
+                <option value="data receptionist">Data Receptionist</option>
+                <option value="researcher">Researcher</option>
+            </select>
+        </div>
+        <button type="submit" class="login-button">Login</button>
+        <div class="support-link">
+            <a href="support.html">Request Support</a>
+        </div>
+    </form>
+</div>
+
+
+{% endblock %}
+
+
+
+
+<!-- Login Page footer -->
+{% block footer %}
+Administration portal for Fetal PCB Prediction Tool.
+{% endblock %}
+
+<!-- Client-side Scripts -->
+{% block scripts %}
+{% if error %}
+<script>
+    console.log('login failed.');
+    showAppDialog("Login failed, error: {{ error }}");
+</script>
+{% endif %}
+<!-- <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        // Fetch login form id
+        const loginForm = document.getElementById("login-form");
+
+        // Add event listener to login button
+        loginForm.addEventListener("submit", async function (event) {
+            // Disable default form submission (Avoid Method Not Allowed Issue)
+            event.preventDefault();
+
+            // Retrieve the entered credentials
+            const usernameH = document.getElementById("username").value;
+            const passwordH = document.getElementById("password").value;
+            const roleH = document.getElementById("user-type").value;
+
+            try {
+
+                // Create request headers
+                const headers = { 'Content-Type': 'application/json', };
+
+                // Create the POST request body
+                const body = JSON.stringify({
+                    username: usernameH,
+                    password: passwordH,
+                    role: roleH,
+                })
+
+                // Send request
+                const response = await fetch('/login', { method: 'POST', headers, body });
+
+
+                // Check response status
+                if (!response.ok) {
+                    console.log(`HTTP error! status: ${response.status}`);
+
+                    // Parse responsse
+                    const data = await response.json();
+
+                    console.log('login failed.');
+                    showAppDialog(`Login failed, error: ${data.error}`);
+                }
+                else
+                    console.log('login Successful');
+            }
+            catch (error) {
+                console.error('Error verifying login credentials:', error);
+            }
+
+        }, false);
+    });
+
+</script> -->
+{% endblock %}

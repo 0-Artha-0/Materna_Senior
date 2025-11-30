@@ -1,0 +1,423 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Reports{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.querySelector(".search-input");
+        const searchBtn = document.querySelector(".search-bar .button-primary");
+
+        const selects = document.querySelectorAll(".filter-dropdown");
+        if (selects.length < 3) return;
+
+        const typeSel = selects[0]; // All Types | …
+        const statusSel = selects[1]; // All Status | Open | In Progress | Resolved | Closed
+        const dateSel = selects[2]; // All Dates | Today | Last 7 Days | Last 30 Days
+
+        const rows = Array.from(document.querySelectorAll(".data-table tbody tr"));
+        if (!rows.length) return;
+
+        function withinDateWindow(dateText, windowOpt) {
+            if (!windowOpt || windowOpt.startsWith("All")) return true;
+            if (!dateText || dateText === "-") return false;
+            // Parse "Apr 21, 2025" style
+            const dt = new Date(dateText);
+            if (isNaN(dt)) return false;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            if (windowOpt === "Today") {
+                const d = new Date(dt); d.setHours(0, 0, 0, 0);
+                return d.getTime() === today.getTime();
+            }
+            if (windowOpt === "Last 7 Days") {
+                const start = new Date(today); start.setDate(start.getDate() - 6);
+                return dt >= start && dt <= new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            }
+            if (windowOpt === "Last 30 Days") {
+                const start = new Date(today); start.setDate(start.getDate() - 29);
+                return dt >= start && dt <= new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
+            }
+            return true;
+        }
+
+        function applyAll() {
+            const q = (searchInput?.value || "").trim().toLowerCase();
+            const typeChoice = typeSel.value;
+            const statusChoice = statusSel.value;
+            const dateChoice = dateSel.value;
+
+            rows.forEach(row => {
+                const tds = row.querySelectorAll("td");
+                // columns per attributes: [Report ID, Type, Subject, Sender, Date Reported, Priority, (badge), Action]
+                const repId = (tds[0]?.textContent || "").trim().toLowerCase();
+                const rType = (tds[1]?.textContent || "").trim();
+                const subj = (tds[2]?.textContent || "").trim().toLowerCase();
+                const sender = (tds[3]?.textContent || "").trim().toLowerCase();
+                const repDate = (tds[4]?.textContent || "").trim();
+                const badgeTd = tds[tds.length - 2];
+                const statusText = (badgeTd?.textContent || "").trim(); // Open / In Progress / Resolved / Closed
+
+                // search matches ID, subject or sender
+                const matchesSearch = !q || repId.includes(q) || subj.includes(q) || sender.includes(q);
+
+                const okType = typeChoice.startsWith("All") || rType === typeChoice;
+                const okStatus = statusChoice.startsWith("All") || statusText === statusChoice;
+                const okDate = withinDateWindow(repDate, dateChoice);
+
+                row.style.display = (matchesSearch && okType && okStatus && okDate) ? "" : "none";
+            });
+        }
+
+        // events
+        if (searchBtn) searchBtn.addEventListener("click", applyAll);
+        if (searchInput) searchInput.addEventListener("keydown", (e) => { if (e.key === "Enter") applyAll(); });
+        typeSel.addEventListener("change", applyAll);
+        statusSel.addEventListener("change", applyAll);
+        dateSel.addEventListener("change", applyAll);
+    });
+</script>
+
+
+{% endblock %}
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materna: Reports</title>
+    <link rel="stylesheet" href="../../static/styles/background.css">
+    <style>
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--light-blue);
+            color: var(--navy);
+            border-radius: 10px;
+            border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+        }
+
+        .controls-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .controls-subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            color: white;
+            font-size: medium;
+            font-weight: 550;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background-color: var(--coral);
+        }
+
+        .button-secondary {
+            background-color: var(--dark-blue);
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            border-top: 3px solid var(--light-blue);
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .summary-label {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .search-filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-label {
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background-color: var(--light-blue);
+            color: var(--navy);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: rgba(230, 249, 248, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="../../static/logo.png" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">Ms. Durrah Haseeb</div>
+                    <div class="user-role">Chief Administrator</div>
+                </div>
+                <img src="../../static/user.png" alt="User Icon" width="40px">
+            </div>
+        </header>
+        <nav class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="accounts.html">Accounts Manager</a>
+            <a href="reports.html" class="active">Reports</a>
+            <a href=""><img src="../../static/lightmode.png" width="25px"></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="controls">
+            <div>
+                <div class="controls-title">Issue Reports & Feedback</div>
+                <div class="controls-subtitle">Track and resolve system issues and user feedback</div>
+            </div>
+            <div class="action-buttons">
+                <button class="button-primary">Export Reports</button>
+            </div>
+        </div>
+
+        <div class="summary-banner">
+            <div class="summary-item">
+                <div class="summary-number">32</div>
+                <div class="summary-label">Total Reports</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">8</div>
+                <div class="summary-label">Critical Issues</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">15</div>
+                <div class="summary-label">Pending Review</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">9</div>
+                <div class="summary-label">Resolved</div>
+            </div>
+        </div>
+
+        <div class="search-filter-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search by report ID, subject, or sender...">
+                <button class="button-primary">Search</button>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter by:</span>
+                <select class="filter-dropdown">
+                    <option>All Types</option>
+                    <option>Technical Issue</option>
+                    <option>Support Request</option>
+                    <option>Feature Request</option>
+                    <option>User Feedback</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Status</option>
+                    <option>Pending</option>
+                    <option>In Progress</option>
+                    <option>Resolved</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Dates</option>
+                    <option>Today</option>
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Older</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Report ID</th>
+                    <th>Type</th>
+                    <th>Subject</th>
+                    <th>Sender</th>
+                    <th>Date Reported</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>R-1037</td>
+                    <td>Technical Issue</td>
+                    <td>Database connection timeout</td>
+                    <td>User ID: M-425</td>
+                    <td>Apr 21, 2025</td>
+                    <td>High</td>
+                    <td><span class="status-badge status-critical">Critical</span></td>
+                    <td><button class="button-secondary">Review</button></td>
+                </tr>
+                <tr>
+                    <td>R-1036</td>
+                    <td>Support Request</td>
+                    <td>Password reset not working</td>
+                    <td>User ID: D-113</td>
+                    <td>Apr 20, 2025</td>
+                    <td>Medium</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td><button class="button-secondary">Review</button></td>
+                </tr>
+                <tr>
+                    <td>R-1035</td>
+                    <td>Feature Request</td>
+                    <td>Add batch patient data import</td>
+                    <td>User ID: A-054</td>
+                    <td>Apr 18, 2025</td>
+                    <td>Low</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td><button class="button-secondary">Review</button></td>
+                </tr>
+                <tr>
+                    <td>R-1034</td>
+                    <td>User Feedback</td>
+                    <td>Dashboard loading speed improvements</td>
+                    <td>User ID: M-103</td>
+                    <td>Apr 17, 2025</td>
+                    <td>Medium</td>
+                    <td><span class="status-badge status-resolved">Resolved</span></td>
+                    <td><button class="button-secondary">Details</button></td>
+                </tr>
+                <tr>
+                    <td>R-1033</td>
+                    <td>Technical Issue</td>
+                    <td>Error in data export functionality</td>
+                    <td>User ID: D-287</td>
+                    <td>Apr 16, 2025</td>
+                    <td>High</td>
+                    <td><span class="status-badge status-critical">Critical</span></td>
+                    <td><button class="button-secondary">Review</button></td>
+                </tr>
+                <tr>
+                    <td>R-1032</td>
+                    <td>Support Request</td>
+                    <td>Missing patient records after update</td>
+                    <td>User ID: D-093</td>
+                    <td>Apr 15, 2025</td>
+                    <td>High</td>
+                    <td><span class="status-badge status-pending">Pending</span></td>
+                    <td><button class="button-secondary">Review</button></td>
+                </tr>
+                <tr>
+                    <td>R-1031</td>
+                    <td>User Feedback</td>
+                    <td>UI improvement suggestions</td>
+                    <td>User ID: A-078</td>
+                    <td>Apr 14, 2025</td>
+                    <td>Low</td>
+                    <td><span class="status-badge status-resolved">Resolved</span></td>
+                    <td><button class="button-secondary">Details</button></td>
+                </tr>
+            </tbody>
+        </table>
+
+    </div>
+    <footer class="footer">
+        Administration portal for Fetal PCB Prediction Tool.
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+    </footer>
+</body>
+
+</html> -->

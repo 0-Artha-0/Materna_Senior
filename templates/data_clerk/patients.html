@@ -1,0 +1,400 @@
+{% extends "layouts/list_layout.html" %}
+
+{% block title %}Patients Records{% endblock %}
+
+{% block scripts %}
+{{ super()}}
+
+<script>
+    function attachDataClerkFilters() {
+        const selects = document.querySelectorAll(".filter-dropdown");
+        if (selects.length < 3) return;
+        const statusSel = selects[0], dateSel = selects[1], apptSel = selects[2];
+        const rows = [...document.querySelectorAll(".data-table tbody tr")];
+        if (!rows.length) return;
+
+        function parseDate(txt) {
+            const s = (txt || "").trim(); if (!s || s === "N/A") return null;
+            const d = new Date(s); return isNaN(d) ? null : d;
+        }
+        function inRange(d, choice) {
+            if (!choice || choice.startsWith("All")) return true;
+            if (!d) return false;
+            const now = new Date(); const diff = Math.floor((now - d) / (1000 * 60 * 60 * 24));
+            if (choice === "Today") return diff === 0;
+            if (choice === "Last 7 Days") return diff <= 7;
+            if (choice === "Last 30 Days") return diff <= 30;
+            if (choice === "Older than 30 Days") return diff > 30;
+            return true;
+        }
+
+        function run() {
+            const s = statusSel.value, dt = dateSel.value, ap = apptSel.value;
+            const now = new Date();
+
+            rows.forEach(r => {
+                const tds = r.querySelectorAll("td");
+                const entryTxt = tds[2]?.textContent || "-";
+                const nextApptTxt = (tds[4]?.textContent || "").trim(); // "Apr 29, 2025" or "N/A"
+                const badgeTd = tds[tds.length - 2];
+                const statusTxt = (badgeTd?.textContent || "").trim();  // "Complete" / "Needs Update" / "Incomplete"
+
+                const okStatus = s.startsWith("All") || statusTxt === s;
+                const okDate = inRange(parseDate(entryTxt), dt);
+                const okAppt =
+                    ap.startsWith("All") ||
+                    (ap === "With Upcoming Appointment" && nextApptTxt !== "N/A" && new Date(nextApptTxt) > now) ||
+                    (ap === "No Upcoming Appointment" && (nextApptTxt === "N/A" || new Date(nextApptTxt) <= now));
+
+                r.style.display = (okStatus && okDate && okAppt) ? "" : "none";
+            });
+        }
+
+        statusSel.addEventListener("change", run);
+        dateSel.addEventListener("change", run);
+        apptSel.addEventListener("change", run);
+    }
+    document.addEventListener("DOMContentLoaded", attachDataClerkFilters);
+</script>
+
+
+{% endblock %}
+
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materna: Patients Records</title>
+    <link rel="stylesheet" href="../../static/styles/background.css">
+
+    <style>
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: var(--light-blue);
+            color: var(--navy);
+            border-radius: 10px;
+            border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+        }
+
+        .controls-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .controls-subtitle {
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            color: white;
+            font-size: medium;
+            font-weight: 550;
+            border: none;
+            border-radius: 5px;
+            box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+        }
+
+        .button-primary {
+            background-color: var(--coral);
+        }
+
+        .button-secondary {
+            background-color: var(--dark-blue);
+        }
+
+        .summary-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-item {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            border-top: 3px solid var(--light-blue);
+        }
+
+        .summary-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: var(--dark-blue);
+        }
+
+        .summary-label {
+            color: rgba(0, 0, 0, 0.7);
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .search-filter-container {
+            background-color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .filter-section {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .filter-label {
+            color: var(--navy);
+            font-weight: 500;
+        }
+
+        .filter-dropdown {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .data-table thead {
+            background-color: var(--light-blue);
+            color: var(--navy);
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:nth-child(even) {
+            background-color: rgba(230, 249, 248, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-container">
+        <header class="header">
+            <div class="logo-container">
+                <img src="../../static/logo.png" alt="Materna logo" height="60px">
+                <h2 class="brand"><span class="logo">Materna:</span> Fetal PCB Prediction Tool</h2>
+            </div>
+            <div class="user-info">
+                <div>
+                    <div class="user-name">Hassan Ahmad</div>
+                    <div class="user-role">Data Recieptionist</div>
+                </div>
+                <img src="../../static/user.png" alt="User Icon" width="40px">
+            </div>
+        </header>
+        <nav class="nav-links">
+            <a href="home.html">Home</a>
+            <a href="patients.html" class="active">Patients</a>
+            <a href="appointments.html">Appointments</a>
+            <a href="support.html">Support</a>
+            <a href=""><img src="../../static/lightmode.png" width="25px"></a>
+        </nav>
+    </div>
+
+    <div class="content">
+        <div class="controls">
+            <div>
+                <div class="controls-title">Patient Records</div>
+                <div class="controls-subtitle">Enter and update patient data for PCB risk assessment</div>
+            </div>
+            <div class="action-buttons">
+                <button class="button-primary" onclick="location.href='patient-form.html'">Register New Patient</button>
+            </div>
+        </div>
+
+        <div class="summary-banner">
+            <div class="summary-item">
+                <div class="summary-number">124</div>
+                <div class="summary-label">Total Patients</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">12</div>
+                <div class="summary-label">Incomplete Records</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">23</div>
+                <div class="summary-label">Requires Update</div>
+            </div>
+            <div class="summary-item">
+                <div class="summary-number">89</div>
+                <div class="summary-label">Complete Records</div>
+            </div>
+        </div>
+
+        <div class="search-filter-container">
+            <div class="search-bar">
+                <input type="text" class="search-input" placeholder="Search patients by name, ID or status...">
+                <button class="button-primary">Search</button>
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Filter by:</span>
+                <select class="filter-dropdown">
+                    <option>All Data Status</option>
+                    <option>Incomplete Data</option>
+                    <option>Requires Update</option>
+                    <option>Complete Data</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Entry Dates</option>
+                    <option>Today</option>
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                    <option>Older than 30 Days</option>
+                </select>
+                <select class="filter-dropdown">
+                    <option>All Appointment Status</option>
+                    <option>With Upcoming Appointment</option>
+                    <option>No Upcoming Appointment</option>
+                </select>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Patient ID</th>
+                    <th>Name</th>
+                    <th>Data Entry Date</th>
+                    <th>Last Appointment</th>
+                    <th>Next Appointment</th>
+                    <th>Data Status</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>P-24501</td>
+                    <td>Salma Omar</td>
+                    <td>Apr 05, 2025</td>
+                    <td>Apr 10, 2025</td>
+                    <td>May 15, 2025</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24502</td>
+                    <td>Amina Jameel</td>
+                    <td>Apr 12, 2025</td>
+                    <td>Apr 15, 2025</td>
+                    <td>Apr 29, 2025</td>
+                    <td><span class="status-badge status-update">Needs Update</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24503</td>
+                    <td>Maryam Hadi</td>
+                    <td>Apr 08, 2025</td>
+                    <td>Apr 12, 2025</td>
+                    <td>May 12, 2025</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24504</td>
+                    <td>Susan Nader</td>
+                    <td>Apr 11, 2025</td>
+                    <td>Apr 16, 2025</td>
+                    <td>May 01, 2025</td>
+                    <td><span class="status-badge status-incomplete">Incomplete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24505</td>
+                    <td>Tayba Saeed</td>
+                    <td>Apr 10, 2025</td>
+                    <td>Apr 14, 2025</td>
+                    <td>May 14, 2025</td>
+                    <td><span class="status-badge status-complete">Complete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24506</td>
+                    <td>Noor Salim</td>
+                    <td>Apr 07, 2025</td>
+                    <td>Apr 11, 2025</td>
+                    <td>Apr 25, 2025</td>
+                    <td><span class="status-badge status-update">Needs Update</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24507</td>
+                    <td>Asia Khalil</td>
+                    <td>Apr 19, 2025</td>
+                    <td>N/A</td>
+                    <td>Apr 26, 2025</td>
+                    <td><span class="status-badge status-incomplete">Incomplete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+                <tr>
+                    <td>P-24508</td>
+                    <td>Yumna Zeyad</td>
+                    <td>Apr 18, 2025</td>
+                    <td>N/A</td>
+                    <td>Apr 27, 2025</td>
+                    <td><span class="status-badge status-incomplete">Incomplete</span></td>
+                    <td><button class="button-secondary">Edit</button></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <footer class="footer">
+        Data Receptionist portal for the Fetal PCB Prediction Tool. All patient information entered is confidential and
+        protected under privacy policies. Please ensure accuracy and completeness of all records.
+        <br><br>
+        © 2025 . All rights reserved to PCBeers.
+    </footer>
+</body>
+
+</html> -->

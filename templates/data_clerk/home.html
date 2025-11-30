@@ -1,0 +1,95 @@
+{% extends "layouts/home_layout.html" %}
+
+{% block styles %}
+
+{{ super() }}
+
+<style>
+    .status-summary {
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+    }
+
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .stat-item:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--light-blue);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+    }
+
+    .stat-text {
+        flex: 1;
+    }
+
+    .stat-text h4 {
+        margin: 0 0 5px 0;
+        color: var(--navy);
+    }
+
+    .stat-text p {
+        margin: 0;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.7);
+    }
+</style>
+{% endblock %}
+
+{% block home_button_href %}appointments.html{% endblock %}
+{% block button %}View Schedule{% endblock %}
+
+
+<!-- Quick Actions Buttons -->
+{% block quickActions %}
+<button class="action-card" id='patients'>
+    <div class="icon">📋</div>
+    <h3>Register Patient</h3>
+    <p>Add a new patient record</p>
+</button>
+<button class="action-card" id='patients'>
+    <div class="icon">🔄</div>
+    <h3>Update Records</h3>
+    <p>Modify existing patient data</p>
+</button>
+<button class="action-card" id='appointments'>
+    <div class="icon">📅</div>
+    <h3>View Appointments</h3>
+    <p>Manage patients appointments</p>
+</button>
+{% endblock %}
+
+{% block notifications %}
+<div class="status-summary">
+    <div class="section-title">Status Summary</div>
+    {% for notif in data.notifications.summary %}
+    <div class="stat-item">
+        <div class="stat-icon">{{ notif.count }}</div>
+        <div class="stat-text">
+            <h4>{{ notif.title }}</h4>
+            <p>{{ notif.subtitle }}</p>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

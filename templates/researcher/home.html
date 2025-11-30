@@ -1,0 +1,235 @@
+{% extends "layouts/main_layout.html" %}
+
+<!-- Page title -->
+{% block title %} Analytics Dashboard {% endblock %}
+
+{% block styles %}
+
+<link rel="stylesheet" href="{{ url_for('static', path='styles/homepages.css') }}">
+
+{% endblock %}
+
+<!-- Main Content -->
+{% block content %}
+
+<div class="Charts">
+    <!-- Model Overview -->
+    <div class="section">
+        <h2 class="section-title">Model Overview</h2>
+        <p class="section-description">
+            This dashboard presents insights from an advanced machine learning model designed to assess PCB
+            exposure
+            risks in maternal and fetal populations.
+            The model analyzes multiple PCB compounds to predict fetal exposure levels
+            based on
+            maternal biomarkers,
+            demographic factors, and lifestyle patterns. By identifying high-risk cases early, healthcare
+            providers can
+            implement targeted interventions
+            to minimize developmental risks associated with PCB exposure.
+        </p>
+    </div>
+
+    <div class="Controls">
+        <div>
+            <!-- OPTIONALLY ADD RISK LEVEL AND PCB COMPOUNDS FILTERS -->
+            <span class="Controls-title">Data Range</span>
+            &nbsp;
+            <select id="rangeOptions">
+                <option value="all">all</option>
+                <option value="week">Last Week</option>
+                <option value="month">Last Month</option>
+                <option value="threemonths">Last Three Months</option>
+            </select>
+            <div id="dateRange" style="margin-top: 5px;"></div>
+        </div>
+
+        <button id="refresh" class="button-primary">Refresh Data</button>
+    </div>
+
+    <!-- Overview Metrics -->
+    <div class="Key-Metrics">
+        <h3 class="subheadings">Key Metrics</h3>
+        <ul>
+            <li> Total Patients Assessed
+                <div class="content">
+                    <h2 id="totalPatients">-</h2>
+                </div>
+            </li>
+
+            <li> High Risk Cases
+                <div class="content">
+                    <h2 id="highRiskCases">-</h2>
+                </div>
+            </li>
+            <!-- OPTIONALLY ADD HIGH RISK PERCENTAGE-->
+
+            <li> Top PCB Compound
+                <div class="content">
+                    <h2 id="topPCB">-</h2>
+                </div>
+            </li>
+
+            <li> Top PCB Compound Average
+                <div class="content">
+                    <h2 id="topPCBAvg">-</h2>
+                </div>
+            </li>
+
+            <li> Avg Fetal PCB Concentration
+                <div class="content">
+                    <h2 id="avgFetalPCB">-</h2>
+                </div>
+            </li>
+
+            <li> Maternal-Fetal Correlation
+                <div class="content">
+                    <h2 id="correlation">-</h2>
+                </div>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Charts -->
+    <!-- 1. Exposure and Risk Patterns -->
+    <h2 class="subheadings">Exposure and Risk Patterns</h2>
+    <p class="section-description">
+        Analyze PCB compound distributions, risk stratification, and concentration patterns across maternal and
+        fetal populations.
+        This section helps identify which compounds pose the greatest threat and how risk levels vary across the
+        patient cohort.
+    </p>
+    <div class="chart-container">
+        <!-- 1.1 Average PCB Levels ( Grouped Bar Chart ) -->
+        <div>
+            <strong>Average PCB Compound Levels</strong>
+            <canvas id="avgPCBChart"></canvas>
+        </div>
+
+        <!-- 1.2 Risk Distribution by PCB Compound ( Stacked Bar Chart )-->
+        <div>
+            <strong>Risk Distribution by PCB Compound</strong>
+            <canvas id="riskByPCBChart"></canvas>
+        </div>
+
+        <!-- 1.3 Maternal vs Fetal PCB Concentration Distribution ( Line Chart ) -->
+        <div>
+            <strong>PCB Concentration Distribution: Maternal vs Fetal</strong>
+            <canvas id="concentrationDistChart"></canvas>
+        </div>
+
+    </div>
+
+    <!-- 2. Demographic Correlations -->
+    <h2 class="subheadings">Demographic Correlations</h2>
+    <p class="section-description">
+        Explore relationships between PCB exposure and demographic factors including age, BMI, education, and
+        lifestyle choices.
+        Understanding these correlations enables targeted screening and intervention strategies for high-risk
+        demographic groups.
+    </p>
+
+    <div class="chart-container">
+        <!-- 2.1 PCB Exposure by Age Group ( Bar Chart) -->
+        <div>
+            <strong>PCB Exposure by Age Group</strong>
+            <canvas id="pcbByAgeChart"></canvas>
+        </div>
+
+        <!-- 2.2 PCB Total vs Maternal Age ( Scatter Plot )-->
+        <div>
+            <strong>PCB Total vs Maternal Age</strong>
+            <canvas id="pcbAgeScatterChart"></canvas>
+        </div>
+
+        <!-- 2.3 Average PCB by BMI Category ( Bar Chart ) -->
+        <div>
+            <strong>Average PCB by BMI Category</strong>
+            <canvas id="pcbByBMIChart"></canvas>
+        </div>
+
+        <!-- 2.4 Smokers vs Non-Smokers ( Bar Chart ) -->
+        <div>
+            <strong>Smokers vs Non-Smokers</strong>
+            <canvas id="smokingComparisonChart"></canvas>
+        </div>
+
+        <!-- 2.5 Variable Correlation Heatmap ( Bubble Chart ) -->
+        <div>
+            <strong>Variable Correlation Heatmap</strong>
+            <canvas id="correlationHeatmapChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 3. Environmental & Lifestyle Factors -->
+    <h2 class="subheadings">Environmental & Lifestyle Factors</h2>
+    <p class="section-description">
+        Investigate how dietary patterns, chemical exposure, and lifestyle choices contribute to PCB
+        accumulation.
+        This analysis reveals modifiable risk factors that can inform prevention strategies and patient
+        counseling.
+    </p>
+    <div class="chart-container">
+        <!-- 3.1 Exposure Contribution Factors ( Radar Chart ) -->
+        <div>
+            <strong>Exposure Contribution Factors</strong>
+            <canvas id="radarChart"></canvas>
+        </div>
+
+        <!-- 3.2 Dietary Patterns vs Exposure ( Grouped Bar Chart )-->
+        <div>
+            <strong>Dietary Patterns vs Exposure</strong>
+            <canvas id="dietaryPatternsChart"></canvas>
+        </div>
+
+        <!-- 3.3 Lifestyle Pattern Clusters (Cluster Chart) -->
+        <div>
+            <strong>Lifestyle Pattern Clusters</strong>
+            <canvas id="clusterChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 4. Related Research -->
+    <h2 class="subheadings">Related Research</h2>
+    <p class="section-description">
+        Recent scientific publications and studies relevant to PCB exposure assessment and maternal-fetal health
+        impacts.
+    </p>
+    <div class="research-list" id="researchList">
+        <ul class="research-list" id="researchList">
+            <li>
+                <a href="#">Loading research articles...</a>
+            </li>
+        </ul>
+    </div>
+
+    <!--DEFINE RESEARCH-LIST -->
+    <!-- 5. Research Utilities -->
+    <h2 class="subheadings">Research Utilities</h2>
+    <p class="section-description"></p>
+    <div class="Controls">
+        <button class="button-secondary" onclick="exportReport()">
+            Export PDF Report
+        </button>
+        <button class="button-secondary" onclick="generateSummary()">
+            Generate Summary
+        </button>
+        <button class="button-secondary" onclick="exportCSV()">
+            Export to CSV
+        </button>
+        <button class="button-secondary" onclick="shareResults()">
+            Share Results
+        </button>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script src="../../static/scripts/analytics_dashboard.js"></script>
+
+{% endblock %}

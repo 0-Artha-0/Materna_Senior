@@ -1,0 +1,95 @@
+{% extends "layouts/main_layout.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="Controls">
+    <div>
+        <span class="Controls-title">Data Range</span>
+        &nbsp;
+        <select id="rangeOptions">
+            <option value="week">Last Week</option>
+            <option value="month">Last Month</option>
+            <option value="threemonths">Last Three Months</option>
+            <option value="custom">Custom</option>
+        </select>
+        <div id="dateRange" style="margin-top: 5px;"></div>
+    </div>
+
+    <button id="refresh" class="button-primary">Refresh Data</button>
+</div>
+
+<!-- Metrics -->
+<div class="Key-Metrics">
+    <h3 class="subheadings">Key Metrics</h3>
+    <ul>
+        <li> System availability
+            <div class="content">
+                <h2>99.4%</h2>
+            </div>
+        </li>
+        <li>Security incidents
+            <div class="content">
+                <h2>7 monthly</h2>
+            </div>
+        </li>
+        <li>Support performance
+            <div class="content">
+                <h2>14.3 minutes average</h2>
+            </div>
+        </li>
+        <li>Error Rate
+            <div class="content">
+                <h2>2.34%</h2>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<!-- Charts -->
+<div class="Charts">
+    <h3 class="subheadings">Key Charts</h3>
+    <div class="chart-container">
+        <!-- 1. Request Volume Time Series (Line Chart) -->
+        <div style="height: 230px;">
+            <strong>User Activity</strong>
+            <canvas id="RequestVolume"></canvas>
+        </div>
+
+        <!-- Model Evaluation Metrics-->
+        <!-- 2. Error Metrics (Bar)-->
+        <div style="height: 230px;">
+            <strong>Error Comparison Metrics</strong>
+            <canvas id="ErrorMetrics"></canvas>
+        </div>
+        <!-- 3. Error Rates (Line Chart) -->
+        <div style="height: 230px;">
+            <strong>Error Rates</strong>
+            <canvas id="ErrorRates"></canvas>
+        </div>
+        <!-- 4. Model Accuracy (Line Chart)-->
+        <div style="height: 370px;">
+            <strong>Model Accuracy (Training vs Testing)</strong>
+            <canvas id="ModelAccuracy"></canvas>
+        </div>
+
+        <!-- 5. Feature Importance (Polar Area Chart)-->
+        <!-- features/inputs that impact model decisions -->
+        <div style="height: 370px;">
+            <strong>Feature Importance Plot</strong>
+            <canvas id="FeaturePlot"></canvas>
+        </div>
+
+        <!-- 6. PCBs Importance Chart -->
+        <div style="height: 370px;">
+            <strong>PCBs Importance Chart</strong>
+            <canvas id="PCBsPlot"></canvas>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="../../static/scripts/dashboard.js"></script>
+{% endblock %}
