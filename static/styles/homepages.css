@@ -1,0 +1,132 @@
+.welcome-banner {
+    margin: 20px 0;
+    padding: 30px;
+    background-color: var(--light-blue);
+    color: var(--navy);
+    border-radius: 10px;
+    border-bottom: 2px solid rgba(85, 98, 143, 0.7);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.welcome-text h1 {
+    margin: 0 0 10px 0;
+}
+
+.welcome-text p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.dashboard-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.dashboard-container:has(> :not(:empty):nth-child(2)) {
+    grid-template-columns: 2fr 1fr;
+}
+
+.quick-actions {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    color: var(--dark-blue);
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+.action-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.action-card {
+    background-color: var(--mint);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border-left: 4px solid var(--dark-blue);
+}
+
+.action-card:hover {
+    transform: translateY(-5px);
+}
+
+.action-card .icon {
+    width: 40px;
+    height: 40px;
+    margin: 0 auto 10px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.action-card h3 {
+    margin: 0 0 5px 0;
+    color: var(--navy);
+}
+
+.action-card p {
+    margin: 0;
+    font-size: 14px;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.recent-activities {
+    background-color: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    height: 90%;
+    border-radius: 10px;
+    box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.activity-item {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.activity-time {
+    min-width: 100px;
+    color: var(--dark-blue);
+    font-weight: 500;
+}
+
+.activity-desc {
+    flex: 1;
+}
+
+.activity-desc p {
+    margin: 0;
+}
+
+.activity-desc .activity-patient {
+    font-weight: bold;
+}

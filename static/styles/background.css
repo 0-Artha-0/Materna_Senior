@@ -1,0 +1,336 @@
+@import url('https://fonts.googleapis.com/css2?family=Eagle+Lake&display=swap');
+
+:root {
+    --dark-blue: #2d4b6e;
+    --light-blue: #83b0cd;
+    --mint: #e6f7f5;
+    --coral: #ef6a51;
+    --navy: #1e2c3a;
+    --whtish: #f5f5f5;
+}
+
+body {
+    margin: 0;
+    background-color: var(--whtish);
+    color: rgb(51, 51, 51);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.header-container {
+    box-shadow: 0px 1px 3px rgb(0, 0, 0, 0.5);
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 30px;
+    background-color: var(--mint);
+    font-size: 12pt;
+    color: var(--dark-blue);
+}
+
+.header .logo-container {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-weight: lighter;
+}
+
+.header .logo-container .brand {
+    margin: 10px 0px;
+    font-family: "Eagle Lake", serif;
+    font-weight: lighter;
+}
+
+.header .logo-container .logo {
+    font-weight: 900;
+}
+
+.header .user-info {
+    display: grid;
+    align-items: center;
+    gap: 10px;
+}
+
+.header .user-info div {
+    display: flex;
+    justify-content: space-between;
+}
+
+.header .user-info div div {
+    display: flex;
+    flex-direction: column;
+    text-align: right;
+    margin-right: 5px;
+}
+
+.header .user-info .user-name {
+    font-weight: bold;
+}
+
+.header .user-info .user-role {
+    font-size: small;
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.nav-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    justify-items: center;
+    margin: 0;
+    padding: 0px 50px;
+    overflow: hidden;
+    background-color: var(--navy);
+    color: aliceblue;
+    font-size: 12pt;
+}
+
+.nav-links a {
+    align-content: center;
+    text-decoration: none;
+    color: aliceblue;
+    padding: 10px 20px;
+    transition: all 0.3s ease-in-out;
+}
+
+.nav-links a.active {
+    font-weight: bold;
+    border-bottom: 3px solid var(--coral);
+}
+
+.nav-links a:hover {
+    position: relative;
+    transform: translateY(-2px);
+}
+
+.content {
+    padding: 0 10%;
+    justify-content: center;
+    align-items: center;
+}
+
+.Controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0px;
+    padding: 20px;
+    background-color: var(--light-blue);
+    color: var(--navy);
+    border-radius: 10px;
+    border-bottom: 2px solid rgb(85, 98, 143);
+}
+
+.Controls-title {
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.Controls-subtitle {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.Controls select {
+    padding: 3px;
+    border-radius: 5px;
+}
+
+button {
+    padding: 10px 15px;
+    color: white;
+    font-size: medium;
+    font-weight: 550;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.Controls button {
+    padding: 10px 15px;
+    color: white;
+    font-size: medium;
+    font-weight: 550;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0px 1px 2px rgb(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.button-primary {
+    background-color: var(--coral);
+}
+
+.button-secondary {
+    background-color: var(--dark-blue);
+    margin-right: 10px;
+}
+
+/* ---------------- Used in view pages e.g. patient profile ---------------- */
+.info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.info-card {
+    background-color: white;
+    border-radius: 6px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    border-top: 3px solid var(--light-blue);
+}
+
+.card-title {
+    font-weight: bold;
+    color: var(--dark-blue);
+    font-size: 14px;
+    margin-bottom: 8px;
+}
+
+.card-value {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 30px 0 15px 0;
+    color: var(--dark-blue);
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+}
+
+/* ------------------------------------------- */
+
+.subheadings {
+    padding: 10px;
+    margin: 0;
+    color: var(--dark-blue);
+    border-bottom: 1px solid rgb(0, 0, 0, 0.1);
+}
+
+.Key-Metrics ul {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 10px;
+    padding: 20px 0px;
+    margin: 0;
+    list-style: none;
+}
+
+.Key-Metrics ul li {
+    justify-items: center;
+    padding: 10px 3px;
+    background-color: white;
+    font-weight: bold;
+    color: var(--dark-blue);
+    border-radius: 10px;
+    box-shadow: 0px 1px 3px rgb(0, 0, 0, 0.2);
+    border-top: 3px solid var(--light-blue);
+}
+
+.Key-Metrics .content {
+    display: flex;
+    justify-content: center;
+}
+
+.Key-Metrics .content h2 {
+    font-size: 15pt;
+    color: rgb(252, 165, 73);
+    text-shadow: 0px 0px 1px rgb(240, 242, 255);
+    text-align: center;
+}
+
+.chart-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    justify-content: space-between;
+    gap: 15px;
+    margin: 20px 0px;
+}
+
+.chart-container div {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 280px;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 1px 3px rgb(0, 0, 0, 0.2);
+    border-top: 3px solid var(--light-blue);
+}
+
+.chart-container strong {
+    padding-bottom: 5px;
+    font-size: 12pt;
+    border-bottom: 1px solid rgb(85, 98, 143, 0.2);
+    color: var(--dark-blue)
+}
+
+.footer {
+    background-color: white;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    color: #777;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.risk-badge {
+    padding: 5px 12px;
+    font-size: 13px;
+}
+
+.status-badge {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+.risk-badge,
+.status-badge {
+    display: inline-block;
+    border-radius: 4px;
+    color: white;
+    font-weight: bold;
+}
+
+.risk-low,
+.status-resolved,
+.status-complete {
+    background-color: #4caf50;
+}
+
+.risk-medium,
+.status-pending,
+.status-update {
+    background-color: #f9a826;
+}
+
+.risk-high,
+.status-critical,
+.status-incomplete {
+    background-color: var(--coral);
+}
+
+.status-1,
+.bmi-normal {
+    color: #4caf50;
+}
+
+.status-2,
+.bmi-warning {
+    color: #f39c12;
+}
+
+.status-3,
+.bmi-alert {
+    color: var(--coral);
+}
