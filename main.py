@@ -9,7 +9,6 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import pickle
-from pydantic import BaseModel  # TO BE REMOVED
 
 from contextlib import asynccontextmanager
 
@@ -70,46 +69,6 @@ app.add_middleware(
     secret_key="CHANGE_ME"
 )
 
-# TO BE REMOVED
-
-
-# class Features(BaseModel):
-#     Gender: int
-#     Age: int
-#     Chemical_exposure: int
-#     Q30_vaccines_received: int
-#     Daily_dairy_doses: float
-#     Cheese_slices: int
-#     Sum_of_dairy_products: float
-#     Cups_of_coffee: float
-#     Cups_of_tea: float
-#     Cups_of_green_tea: float
-#     Rye_bread: int
-#     Mixed_bread: int
-#     Boiled_potatoes: int
-#     Fried_potatoes: int
-#     Beef_or_pork: int
-#     Reindeer_game_meat: int
-#     Light_meat: int
-#     Sausage_dishes: int
-#     Eggs: int
-#     Fish_dishes: int
-#     Trout_Salmon: int
-#     Domestic_sea_salmon: int
-#     Lake_fish: int
-#     Frozen_fish: int
-#     Shrimp: int
-#     Apple: int
-#     Apple_juice: int
-#     Grilled_food: int
-#     Smoked_food: int
-#     Breaded_food: int
-#     BMI: float
-#     Maternal_Education: int
-#     Smoking: int
-#     Alcohol: int
-#     mPCB: float
-
 # Additional Precuationary route to handle "favicon template not found" exception
 
 
@@ -150,7 +109,7 @@ async def predict_cPCB(request: Request, session: Session = Depends(get_session)
 
     # role = data["role"]
 
-    # return templates.TemplateResponse(f"{role}/assessment.html", {"request": request, "data": data})
+    # return templates.TemplateResponse(f"{role}/assessment.html", {"request": request, "data": data}) # old implementation
 
     return JSONResponse(data, status_code=200)
 
@@ -195,12 +154,6 @@ async def login_verify(request: Request, username: str = Form(...), password: st
         }
 
         return RedirectResponse(url="/home", status_code=303)
-
-
-# def get_role(request: Request):
-#     user_data = request.session.get("user")
-
-#     return user_data.get("role")
 
 
 @app.get("/home", response_class=HTMLResponse)
@@ -352,9 +305,7 @@ def physician_patient_assesment(request: Request, patient_id: int, session: Sess
             session=session, patient_id=patient_id)
         return templates.TemplateResponse(f"{role}/assessment.html", {"request": request, "data": data})
 
-    # Dynamic route to serve different pages based on the URL
-
-
+# Dynamic route to serve different pages based on the URL
 @app.get("/patients/new", response_class=HTMLResponse)
 def data_clerk_new_patient(request: Request, session: Session = Depends(get_session)):
 
@@ -560,3 +511,4 @@ async def register_new_patient(request: Request, session: Session = Depends(get_
 # @app.get("/{role}/{page_name}", response_class=HTMLResponse)
 # def get_page(request: Request, role: str, page_name: str):
 #     return templates.TemplateResponse(f"{role}/{page_name}", {"request": request})
+
